@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Подземелья Черного Замка</title>
+    <content frame="gameFrame">
+
+        <style type="text/css">
+            img.item {
+                position : absolute;
+                visibility : 'hidden';
+            }
+            div.indicator {
+                position : absolute;
+                color : rgb(96,96,0);
+                font-weight : bold;
+                left : 103px;
+            }
+            div.legend {
+                position : absolute;
+                color : red;
+                font-weight : bold;
+            }
+            a.clickable: link {
+                color : red;
+            }
+        </style>
+
+        <script type="text/javascript">
+
+            var Agility=0
+            var Max_Strength=0
+            var Strength=0
+            var StrengthFactor=0
+            var Charm=0
+            var binLuck=0
+            var Gold=0
+            var foodAmount=0
+            var RingUsed=-1
+            var Sword=0
+            var FireSpell=1
+            var Sack_MaxAmount=7
+            var nazgulCount=0
+            var track=0
+
+
+
+            var imgUrl = "Img/";
+
+            var newGame;
+            var Agility, Strength, Max_Strength, Charm;
+            var sumLuck, binLuck;
+            var Gold;
+            var foodAmount;
+            var numArticle;
+            var ContainsObjects = new Array(6);
+            var Sack_MaxAmount;
+
+            var readParagraph;
+            var MusicPlay, MusicStop;
+
+
+            var headerHeight = 140;
+            var textHeight;
+
+            var Luck = new Array(6);
+            var Spells_MaxAmount = 10;
+
+            var strContainers = new Array("Заплечный мешок", "Оружие", "На человеке",
+                    "Одежда", "Заклятия", "Меню");
+
+            var imgContainerNames =
+                    [
+                        "Sack.bmp",
+                        "Weapon.bmp",
+                        "At_Me.bmp",
+                        "Cloths.bmp",
+                        "Spells.bmp"
+                    ];
+
+            var itemsRusNames = new Array(5);
+            itemsRusNames [0] = ["Еда"];
+            itemsRusNames [1] = ["Кинжал"];
+            itemsRusNames [2] = ["Кольцо Всевластья"];
+            itemsRusNames [3] = [];
+            itemsRusNames [4] = ["Огонь"];
+
+            var Inventory = new Array(5);
+            var itemsAmount = new Array(5);
+
+            var item_pos = {index0: -1, container: -1};
+
+            var containers_posX = new Array(135, 172, 216, 251, 255, 605);
+            var containers_posY = new Array(59, 20, 57, 26, 63, 30);
+
+            var highlight_containers_posX = new Array(135, 147, 214, 220, 253);
+            var highlight_containers_posY = new Array(59, 19, 56, 24, 61);
+
+            var container_legend;
+            var Panel, Fight_window, BlockAllEvents;
+            var Agility_value, Strength_value, Charm_value, Luck_value, Gold_value;
+
+
+            var selected_container = 0; // Sack
+            var imgContainer = 0;
+            var imgItem;
+            var prev_pointed;
+            var drag = false;
+            var inBasket = false;
+            var imgBasket, item_moved = "";
+            var restore_x, restore_y;
+            var initBattle = true;
+            var step = 0, phase = 1;
+            var figureImages = new Array();
+            var enemy_pictures = new Array(3);
+            var hero_pictures = new Array(2);
+            var timerID;
+            var fight = new Array;
+            var enemiesCount;
+            var heroesCount = 1;
+            var heroResting;
+            var takeForce;
+            var spiderAttack;
+            var heroAlive;
+            var enemy = new Array(3);
+            var hero = new Array(2);
+            var fightEndParamsStr = ["spendRounds", "numWin", "endCond", "num2"];
+            var exp_Cond, endCondition;
+            var fleeArticle;
+            var selectedOpponent, selectedHero;
+            var AgilityFactor = 0;
+            var enemyPowerFactor = 0;
+            var enemyStrengthFactor = 0;
+            var lblStrength = new Array(5);
+            var imgLabel = new Array(3);
+            var imgLabel0;
+            var lbl_ypos = new Array(3);
+            var expr_action = new String;
+
+
+
+
+            function point_on_containers(e)
+            {
+                if (!Strength)
+                    return;
+
+                e = window.event || e;
+                var x = e.offsetX;
+                var y = e.offsetY;
+                var point_at = -1;
+                if (x >= 135 && x <= 315 && y >= 20 && y <= 104)
+                    if (y < 59) {
+                        if (x >= 149 && x <= 222)
+                            point_at = 1;
+                        else
+                        if (x >= 223 && x <= 293 && y >= 26)
+                            point_at = 3;
+                    }
+                    else
+                    if (y < 95) {
+                        if (x <= 171)
+                            point_at = 0;
+                        else
+                        if (x <= 215)
+                            point_at = 1;
+                        else
+                        if (x <= 250)
+                            point_at = 2;
+                        else
+                            point_at = 4;
+                    }
+                    else
+                    if (x <= 186 && y < 100)
+                        point_at = 0;
+                    else
+                    if (x > 215 && x <= 250)
+                        point_at = 2;
+
+                if (point_at != -1)
+                    highlight_container(point_at);
+                else
+                    prev_pointed == -1;
+            }
+
+            function hideContainer()
+            {
+                imgContainer.onclick = null;
+                imgContainer.onmouseout = null;
+            }
+
+            function init_Containers()
+            {
+                for (i = 0; i < 6; i++) {
+                    imgContainer = document.createElement("IMG");
+                    imgContainer.className = "item";
+                    imgContainer.style.top = textHeight + 14 + highlight_containers_posY [i]  + 'px';
+                    imgContainer.style.left = 10 + highlight_containers_posX [i] + 'px';
+                    imgContainer.src = imgUrl + imgContainerNames [i];
+                    Panel.appendChild(imgContainer);
+                }
+                highlight_container(selected_container);
+            }
+
+            function createItem(itemStr, IsObject)
+            {
+                var Item = document.createElement("IMG");
+                Item.src = imgUrl + itemStr + ".bmp";
+                Item.className = "item";
+
+                if (createItem.arguments.length == 1)
+                    IsObject = true;
+
+                if (IsObject) {
+                    Item.title = itemStr;     // Всплывающая подсказка (title или alt в зависимости от
+                    Item.alt = itemStr;       // браузера
+                    if (itemStr == "Еда") {
+                        Item.ondblclick = eatFood;
+                    }
+                }
+                else
+                    Item.style.visibility = 'visible';
+
+                return Item;
+            }
+
+
+            function init_Inventory()
+            {
+                for (var i = 0; i < 5; i++) {
+
+                    var itemStr = itemsRusNames [i];
+                    if (itemStr != null)
+                    {
+                        var count = Inventory [i][itemStr];
+
+                        switch (i)
+                        {
+                            case 0:
+                                count = foodAmount;
+                                break;
+                            case 1:
+                                count = Sword;
+                                break;
+                            case 2:
+                                count = RingUsed != -1;
+                                break;
+                            case 3:
+                                count = 0;
+                                break;
+                            case 4:
+                                count = FireSpell;
+                                break;
+                        }
+                        if (count == 0)
+                        {
+                            count = Inventory [i][itemStr];
+                            for (j = 0; j < count; j++)
+                                removeItem(itemStr);
+                            count = 0;
+                        }
+                        Inventory [i][itemStr] = count;
+                    }
+                    else
+                        count = 0;
+
+                    itemsAmount [i] = count;
+
+                    while (count--) {
+                        imgItem = createItem(itemStr);
+                        Panel.appendChild(imgItem);
+                    }
+                }
+                fill_Containers();
+                selectContainer();
+            }
+
+
+            function fill_Containers()
+            {
+                var numImage = 6;
+                for (var i = 0; i < 5; i++) {
+                    var amount = itemsAmount [i];
+                    refresh_Container(i, numImage, amount, parseInt(Panel.style.height) - 10);
+                    numImage += amount;
+                }
+            }
+
+            function refresh_Container(container, index1, amount, max_height)
+            {
+                var half_amount = Math.floor(amount / 2);
+                var posX;
+
+                if (amount == half_amount * 2)
+                    posX = 455 + 10;
+                else
+                    posX = 455 - document.images [index1 + half_amount].width / 2 + 10;
+                var i;
+                for (i = 0; i < half_amount; i++) {
+                    posX -= document.images [index1 + i].width;
+                    if (container == 4)
+                        posX -= 10;
+                    else
+                        posX -= 3;
+                }
+                if (posX < 365) {
+                    var maxHeight1 = document.images [index1].height;
+                    for (i = 1; i < half_amount; i++) {
+                        var tmpHeight = document.images [index1 + i].height;
+                        if (tmpHeight > maxHeight1)
+                            maxHeight1 = tmpHeight;
+                    }
+                    var maxHeight2 = document.images [index1 + i].height;
+                    i++;
+                    for (; i < amount; i++) {
+                        tmpHeight = document.images [index1 + i].height;
+                        if (tmpHeight > maxHeight2)
+                            maxHeight2 = tmpHeight;
+                    }
+                    max_height -= maxHeight2 - 10;
+                    if (half_amount == 0)
+                        return;
+                    refresh_Container(container, index1, half_amount, max_height);
+                    refresh_Container(container, index1 + half_amount, amount - half_amount,
+                            max_height + 2 * maxHeight1);
+                }
+
+                for (i = 0; i < amount; i++) {
+                    imgItem = document.images [index1 + i];
+                    imgItem.style.left = posX + 'px';
+                    imgItem.style.top = textHeight + 20 + (max_height - imgItem.height) / 2 + 'px';
+                    posX += imgItem.width;
+                    if (container == 4)
+                        posX += 10;
+                    else
+                        posX += 3;
+                }
+            }
+
+            function findItemByString(itemStr)
+            {
+                var Str;
+                var item_pos = {index0: 6, container: -1};
+
+                for (var i = 0; i < 5; i++)
+                    if (itemsRusNames [i] != null)
+                        for (var j in itemsRusNames [i]) {
+                            Str = itemsRusNames [i][j];
+                            if (itemStr == Str) {
+                                item_pos.container = i;
+                                return item_pos;
+                            }
+                            item_pos.index0 += Inventory [i][Str];
+                        }
+                item_pos.index0 = -1;
+                return item_pos;
+            }
+
+            function itemExists(itemStr)
+            {
+                item_pos = findItemByString(itemStr);
+                if (Inventory [item_pos.container][itemStr] == 0) {
+                    switch (item_pos.container) {
+                        case 0:
+                            if (itemStr != 'Еда')
+                                alert("У Вас нет такой вещи!");
+                            else
+                                alert("У Вас нет еды!");
+                            return 0;
+                        case 2:
+                            alert("У Вас нет такого предмета!");
+                            return 0;
+                        case 3:
+                            alert("У Вас нет такой одежды!");
+                            return 0;
+                        case 4:
+                            alert("У Вас нет такого заклятия!");
+                    }
+                    return 0;
+                }
+
+                return Inventory [item_pos.container][itemStr];
+            }
+
+
+            function addItem(itemStr)
+            {
+                item_pos = findItemByString(itemStr);
+                if (item_pos.container == 0)
+                    if (itemsAmount [0] == Sack_MaxAmount) {
+                        alert("Ваш заплечный мешок полон!");
+                        return;
+                    }
+
+                imgItem = createItem(itemStr);
+
+                var container_startIndex = 6;
+                for (var i = 0; i < item_pos.container; i++)
+                    container_startIndex += itemsAmount [i];
+
+                if (itemsAmount [i] == item_pos.index0 - container_startIndex) {
+                    var sum_items_Above = 0;
+                    for (++i; i < 5; i++)
+                        sum_items_Above += itemsAmount [i];
+
+                    if (!sum_items_Above)
+                        Panel.appendChild(imgItem);
+                    else
+                        Panel.insertBefore(imgItem, document.images [item_pos.index0]);
+                }
+                else
+                    Panel.insertBefore(imgItem, document.images [item_pos.index0]);
+
+                Inventory [item_pos.container][itemStr]++;
+                itemsAmount [item_pos.container]++;
+                if (itemStr == 'Еда')
+                    foodAmount++;
+
+                refresh_Container(item_pos.container, container_startIndex, itemsAmount[item_pos.container],
+                        parseInt(Panel.style.height) - 10);
+                if (prev_pointed != item_pos.container)
+                    highlight_container(item_pos.container);
+
+                selectContainer();
+            }
+
+            function removeItem(itemStr)
+            {
+                var container_startIndex = 6;
+
+                item_pos = findItemByString(itemStr);
+                item_moved = document.images [item_pos.index0];
+                for (var i = 0; i < item_pos.container; i++)
+                    container_startIndex += itemsAmount [i];
+
+
+                Inventory [i][itemStr]--;
+                itemsAmount [i]--;
+                if (itemStr == 'Еда')
+                    foodAmount--;
+
+                Panel.removeChild(item_moved);
+
+                refresh_Container(i, container_startIndex, itemsAmount [i], parseInt(Panel.style.height) - 10);
+                selectContainer();
+            }
+
+            function useItem(itemStr, newLoc, modLoc)
+            {
+                if (itemStr != 'Еда') {
+                    if (itemExists(itemStr))
+                        readParagraph("" + newLoc);
+                }
+                else
+                if (Strength < Max_Strength) {
+                    modifyStrength(4);
+                    removeItem('Еда');
+                }
+                else
+                    alert("Ваша сила равна максимальной - перекусите позднее!");
+            }
+
+            function eatFood()
+            {
+                useItem('Еда');
+            }
+
+            function show_legend(num)
+            {
+                if (num != 5) {
+                    container_legend.style.top = textHeight + 120 + 'px';
+                    container_legend.style.left = containers_posX [num] + 'px';
+                }
+                else {
+                    container_legend.style.top = textHeight + 70 + 'px';
+                    container_legend.style.left = containers_posX [num] - 10 + 'px';
+                }
+                container_legend.innerHTML = strContainers [num];
+            }
+
+            function highlight_container(num)
+            {
+                if (num != prev_pointed) {
+                    imgContainer.style.visibility = "hidden";
+                    imgContainer.onclick = null;
+                    imgContainer.onmouseout = null;
+                }
+
+                imgContainer = document.images [num];
+                imgContainer.style.visibility = "visible";
+                imgContainer.onclick = selectContainer;
+                imgContainer.onmouseout = hideContainer;
+                show_legend(num);
+                prev_pointed = num;
+            }
+
+            function selectContainer()
+            {
+                if (prev_pointed == -1)
+                    return;
+
+                var itemIndex;
+
+                var prev_container = selected_container;
+                if (prev_pointed != prev_container) {
+                    var itemIndex = 6;
+                    for (var i = 0; i < prev_container; i++)
+                        itemIndex += itemsAmount [i];
+                    for (i = 0; i < itemsAmount [prev_container]; i++)
+                        document.images [itemIndex++].style.visibility = "hidden";
+                }
+
+                itemIndex = 6;
+                for (i = 0; i < prev_pointed; i++)
+                    itemIndex += itemsAmount [i];
+
+                for (i = 0; i < itemsAmount [prev_pointed]; i++)
+                    document.images [itemIndex++].style.visibility = "visible";
+
+                selected_container = prev_pointed;
+            }
+
+            function SaveGame()
+            {
+                binLuck = 0;
+                for (var i = 0; i < 6; i++) {
+                    binLuck *= 2;
+                    if (Luck [5 - i])
+                        binLuck++;
+                }
+
+                return 1;
+            }
+
+
+            function LoadGame(location)
+            {
+
+                if (location != null) {
+                    sumLuck = 0;
+                    for (var i = 0; i < 6; i++) {
+                        if (binLuck % 2) {
+                            sumLuck++;
+                            Luck [i] = true;
+                        }
+                        else
+                            Luck [i] = false;
+
+                        binLuck = Math.floor(binLuck / 2);
+                    }
+                    newGame = false;
+                    if (container_legend.innerHTML = "")
+                        PanelShow();
+                    DisplayStuff();
+                    heroesCount = 1;
+                    heroResting = false;
+
+                    readParagraph(location);
+                    newGame = true;
+                }
+                return 1;
+            }
+
+            function DisplayStuff()
+            {
+                Agility_value.innerHTML = Agility.toString();
+                Strength_value.innerHTML = Strength.toString();
+                Charm_value.innerHTML = Charm.toString();
+                Luck_value.innerHTML = sumLuck.toString();
+                Gold_value.innerHTML = Gold.toString();
+                init_Inventory();
+            }
+
+
+            function modifyStrength(modStrength)
+            {
+                if (Strength != Max_Strength || modStrength < 0)
+                    Strength += modStrength;
+                else
+                    return;
+
+                if (Strength > Max_Strength)
+                    Strength = Max_Strength;
+                else if (Strength < 0)
+                    Strength = 0;
+                Strength_value.innerHTML = Strength.toString();
+                if (Strength == 0) {
+                    alert("Вы потеряли много сил и умерли!");
+                    readParagraph("die");
+                }
+            }
+
+            function modifyAgility(modAgility)
+            {
+                Agility += modAgility;
+                Agility_value.innerHTML = Agility.toString();
+            }
+
+            function modifyGold(modGold)
+            {
+                Gold += modGold;
+                Gold_value.innerHTML = Gold.toString();
+            }
+
+            function setInitial_Parameters()
+            {
+                var table = [[8,22,11], [10,20,10], [12,16,7], [8,22,11], [9,20,10],
+                    [11,18,8], [10,20,9],  [12,16,7], [8,22,11], [9,20,10], [11,18,8]];
+
+                var dice = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6);
+
+                Agility = table[dice][0];
+                Max_Strength = table[dice][1];
+                Strength = Max_Strength;
+                Charm = table[dice][2];
+
+                sumLuck = 0;
+                var dice1 = Math.floor(Math.random() * 6);
+                var dice2 = Math.floor(Math.random() * 6);
+                for (var i = 0; i < 6; i++)
+                    if (i != dice1 && i != dice2) {
+                        Luck [i] = true;
+                        sumLuck++;
+                    }
+                    else
+                        Luck [i] = false;
+
+                Gold = 0;
+                foodAmount = 0;
+                Sword = 0;
+                RingUsed = -1;
+                FireSpell = 0;
+                Sack_MaxAmount = 7;
+                heroesCount = 1;
+                heroResting = false;
+                newGame = true;
+            }
+
+            function IncreaseLuck()
+            {
+                if (newGame) {
+                    var dice = Math.floor(Math.random() * 6);
+                    Luck [dice] = true;
+                    sumLuck++;
+                    Luck_value.innerHTML = sumLuck.toString();
+                }
+            }
+
+            function CheckLuck(Loc1, Loc2)
+            {
+                var loc;
+                var dice = Math.floor(Math.random() * 6);
+                if (Luck [dice]) {
+                    Luck [dice] = false;
+                    sumLuck--;
+                    Luck_value.innerHTML = sumLuck.toString();
+                    if (CheckLuck.arguments.length != 0)
+                        loc = eval(Loc1);
+                }
+                else
+                if (CheckLuck.arguments.length == 2)
+                    loc = eval(Loc2);
+
+                if (loc != null && loc != undefined)
+                    readParagraph("" + loc);
+            }
+
+            function CheckCharm(Loc1, Loc2)
+            {
+                if (Charm > 12) {
+                    readParagraph(Loc1);
+                    return;
+                }
+                else if (Charm == 5) {
+                    readParagraph(Loc2);
+                    return;
+                }
+                var  dice = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
+                if (dice <= Charm) {
+                    Charm++;
+                    readParagraph(Loc1);
+                }
+                else  {
+                    Charm--;
+                    readParagraph(Loc2);
+                }
+                Charm_value.innerHTML = Charm.toString();
+            }
+
+            function CheckWill(Loc1, Loc2)
+            {
+                var dice = Math.floor(Math.random() * 6) + 1;
+                if (dice % 2)
+                    readParagraph(Loc1);
+                else
+                    readParagraph(Loc2);
+            }
+
+            function CheckEscapeChase(Loc1, Loc2)
+            {
+                var hero_points = 0;
+                var enemy_points = 0;
+                for (var i = 0; i < 3; i++) {
+                    var dice1 = Math.floor(Math.random() * 6);
+                    var dice2 = Math.floor(Math.random() * 6);
+                    if (dice1 > dice2)
+                        hero_points++;
+                    else
+                        enemy_points++;
+                }
+                if (hero_points > enemy_points)
+                    readParagraph(Loc1);
+                else
+                    readParagraph(Loc2);
+            }
+
+            function fightStart(Agility1, Strength1, enemyDesc1)
+            {
+                BlockAllEvents.style.display = '';
+                BlockAllEvents.style.visibility = 'visible';
+                BlockAllEvents.style.zIndex = 1;
+                Fight_window.style.display = '';
+                Fight_window.style.visibility = 'visible';
+                Fight_window.style.zIndex = 2;
+
+                enemiesCount = Math.floor(fightStart.arguments.length / 3);
+                endCondition = null;
+
+                for (var i = 0; i < enemiesCount; i++) {
+                    enemy [i].Agility = fightStart.arguments [i * 3];
+                    enemy [i].Strength = fightStart.arguments [i * 3 + 1];
+                    enemy [i].StrengthFactor = enemyStrengthFactor;
+                    enemy [i].Alive = true;
+                    var desc = fightStart.arguments [i * 3 + 2] + "\r\nЛовкость " + enemy [i].Agility;
+                    enemy_pictures [i] = iterImages(i + 2);
+                    enemy_pictures [i].style.visibility = 'visible';
+                    enemy_pictures [i].title = desc;
+                    enemy_pictures [i].alt = desc;
+
+                    lblStrength [i + 2].innerHTML = enemy [i].Strength.toString();
+                    lblStrength [i + 2].style.visibility = 'visible';
+                }
+
+                lblStrength [0].style.left = 246 + 'px';
+                if (!heroResting) {
+                    hero [0].Agility = Agility + AgilityFactor;
+                    hero [0].Strength = Strength;
+                    hero [0].StrengthFactor = StrengthFactor;
+                    hero [0].Alive = true;
+                }
+
+
+                if (!heroResting) {
+                    hero_pictures [0] = iterImages(0);
+                    hero_pictures [0].style.visibility = 'visible';
+                }
+
+                num_killed = 0;
+                setFigurePositions(0);
+
+                for (i = 0; i < heroesCount; i++) {
+                    lblStrength [i].style.top = parseInt(hero_pictures [i].style.top) +
+                            hero_pictures [i].height + 3 + 'px';
+                    lblStrength [i].style.left = 246 + 'px';
+                    lblStrength [i].innerHTML = hero [i].Strength.toString();
+                    lblStrength [i].style.visibility = 'visible';
+                }
+
+                if (enemiesCount == 2)
+                    lbl_ypos [0] = 128 - 21  / 2 - 51;
+                else
+                if (enemiesCount == 3)
+                    lbl_ypos [0] = 128 - 51 / 2 - (21 + 51);
+
+                for (i = 0; i < enemiesCount; i++) {
+                    if (i) {
+                        if (heroesCount == 1) {
+                            lbl_ypos [i] = lbl_ypos [i - 1] + 51 + 21;
+                            imgLabel0 = iterImages(i + 11);
+                            imgLabel0.style.top = lbl_ypos [i] + 'px';
+                        }
+                    }
+                    else
+                    if (enemiesCount == 1 || heroesCount == 2)
+                        imgLabel0 = iterImages(10);
+                    else {
+                        imgLabel0 = iterImages(11);
+                        imgLabel0.style.top = lbl_ypos [0] + 'px';
+                    }
+
+                    imgLabel0.style.visibility = 'visible';
+
+                    lblStrength [i + 2].style.top = parseInt(enemy_pictures [i].style.top) +
+                            enemy_pictures [i].height + 3 + 'px';
+                    lblStrength [i + 2].style.left = 303 + 'px';
+                }
+
+                initBattle = true;
+                selectedOpponent = -1;
+            }
+
+            function callAllies(Agility1, Strength1, allyDesc1)
+            {
+                heroesCount = Math.floor(callAllies.arguments.length / 3);
+
+                var j;
+                if (heroesCount == 1)
+                    j = 1;
+                else
+                    j = 0;
+
+                for (var i = 0; i < heroesCount; i++) {
+                    hero [j].Agility = callAllies.arguments [i * 3];
+                    hero [j].Strength = callAllies.arguments [i * 3 + 1];
+                    hero [j].StrengthFactor = 2;
+                    hero [j].Alive = true;
+                    hero [j].Hurt = false;
+                    var desc = callAllies.arguments [i * 3 + 2] + "\r\nЛовкость " + hero [j].Agility;
+                    hero_pictures [j] = iterImages(j);
+                    hero_pictures [j].style.visibility = 'visible';
+                    hero_pictures [j].title = desc;
+                    hero_pictures [j].alt = desc;
+
+                    lblStrength [j].innerHTML = hero [j].Strength.toString();
+                    lblStrength [j].style.visibility = 'visible';
+                    j++;
+                }
+
+                if (heroesCount == 1)
+                    heroesCount++;
+                else
+                    heroResting = true;
+            }
+
+            function fightEnd()
+            {
+                for (var i = 0; i < enemiesCount; i++)
+                    if (enemy [i].Alive || exp_Cond) {
+                        iterImages(i + 2).style.visibility = 'hidden';
+                        lblStrength [i + 2].style.visibility = 'hidden';
+                        if (enemiesCount > 1)
+                            iterImages(i + 11).style.visibility = 'hidden';
+                    }
+                if (enemiesCount == 1)
+                    iterImages(10).style.visibility = 'hidden';
+
+
+                for (i = 1; i < heroesCount; i++) {
+                    iterImages(i).style.visibility = 'hidden';
+                    lblStrength [i].style.visibility = 'hidden';
+                }
+
+                Fight_window.style.display = 'none';
+            }
+
+            function removeEnemy(_id)
+            {
+                enemy [_id].Alive = false;
+
+                enemy_pictures [_id].style.visibility = 'hidden';
+                lblStrength [_id + 2].style.visibility = 'hidden';
+                if (enemiesCount != 1 && (heroesCount == 1 || !hero [0].Alive || !hero [1].Alive))
+                    imgLabel0 = iterImages(_id + 11);
+                else
+                    imgLabel0 = iterImages(10);
+
+                if (imgLabel0 != iterImages(10) || heroesCount == 1)
+                {
+                    imgLabel0.style.visibility = 'hidden';
+                    if (heroesCount == 1)
+                        iterImages(10).style.visibility = 'hidden'; // глюк после победы над 2-м противником, если их трое
+                }
+            }
+
+            function removeAlly(_id)
+            {
+                hero [_id].Alive = false;
+                if (_id == 0 && !heroResting)
+                {
+                    heroAlive = false;
+                    return;
+                }
+
+                hero_pictures [_id].style.visibility = 'hidden';
+                lblStrength [_id].style.visibility = 'hidden';
+                if (enemiesCount != 1)
+                {
+                    imgLabel0 = iterImages(10);
+                    imgLabel0.style.visibility = 'hidden';
+
+                    lbl_ypos [0] = 128 - 21  / 2 - 51;
+
+                    for (var i = 0; i < enemiesCount; i++) {
+                        if (i) {
+                            lbl_ypos [i] = lbl_ypos [i - 1] + 51 + 21;
+                            imgLabel0 = iterImages(i + 11);
+                            imgLabel0.style.top = lbl_ypos [i + 'px'];
+                        }
+                        else {
+                            imgLabel0 = iterImages(i + 11);
+                            imgLabel0.style.top = lbl_ypos [0] + 'px';
+                        }
+
+                        if (enemy [i].Alive)
+                            imgLabel0.style.visibility = 'visible';
+                    }
+                }
+            }
+
+            function setFigurePositions(step)
+            {
+                if (step == 3) {
+                    if (hero [0].Hurt)
+                    {
+                        hero_pictures [0].style.left = 228 + 'px';
+                        if (heroesCount == 1)
+                            hero_pictures [0].style.top = 107 + 'px';
+                        else
+                            hero_pictures [0].style.top = 78 + 'px';
+                        hero_pictures [0].src = figureImages [8].src;
+                    }
+                    else
+                    {
+                        hero_pictures [0].style.left = 236 + 'px';
+                        if (heroesCount == 1)
+                            hero_pictures [0].style.top = 102 + 'px';
+                        else
+                            hero_pictures [0].style.top = 73 + 'px';
+                        hero_pictures [0].src = figureImages [6].src;
+                    }
+                    if (heroesCount == 2)
+                        if (hero [1].Hurt) {
+                            hero_pictures [1].style.left = 228 + 'px';
+                            hero_pictures [1].style.top = 150 + 'px';
+                            hero_pictures [1].src = figureImages [8].src;
+                        }
+                        else {
+                            hero_pictures [1].style.left = 236 + 'px';
+                            hero_pictures [1].style.top = 145 + 'px';
+                            hero_pictures [1].src = figureImages [6].src;
+                        }
+                }
+                else {
+                    hero_pictures [0].style.left = 236 + 'px';
+                    hero_pictures [0].src = figureImages [step * 2].src;
+                    if (heroesCount == 1)
+                        hero_pictures [0].style.top = 102 + 'px';
+                    else {
+                        hero_pictures [0].style.top = 73 + 'px';
+                        hero_pictures [1].style.left = 236 + 'px';
+                        hero_pictures [1].style.top = 145 + 'px';
+                        hero_pictures [1].src = figureImages [step * 2].src;
+                    }
+                }
+
+                var enemy_X, enemy_Y;
+                if (enemiesCount == 1)
+                    enemy_Y = 98;
+                else
+                if (enemiesCount == 2)
+                    enemy_Y = 128 - 28 / 2 - figureImages [0].height;
+                else
+                    enemy_Y = 128 - figureImages [0].height / 2 - 28 - figureImages [0].height;
+
+                for (var i = 0; i < enemiesCount; i++) {
+
+                    if (enemy [i].Alive) {
+                        if (step == 3)
+                            if (enemy [i].Hurt) {
+                                enemy_X = 290;
+                                enemy_Y += 7;
+                                enemy_pictures [i].src = figureImages [9].src;
+                            }
+                            else {
+                                enemy_X = 287;
+                                enemy_pictures [i].src = figureImages [7].src;
+                            }
+                        else {
+                            if (step == 2) {
+                                enemy_X = 274;
+                                enemy_Y += 14;
+                            }
+                            else
+                                enemy_X = 287;
+
+                            enemy_pictures [i].src = figureImages [step * 2 + 1].src;
+                        }
+                        enemy_pictures [i].style.left = enemy_X + 'px';
+                        enemy_pictures [i].style.top = enemy_Y + 'px';
+                    }
+                    enemy_Y += figureImages [0].height + 14;
+                    if (step != 2 || !enemy [i].Alive)
+                        enemy_Y += 14;
+                }
+            }
+
+            function battleSequence()
+            {
+                if (phase == 1) {
+                    step++;
+                    if (step == 4) {
+                        step = 2;
+                        phase = 2;
+                    }
+                }
+                else
+                if (!step) {
+
+                    fight.spendRounds++;
+
+                    heroAlive = true;
+                    var allAlliesPerished = true;
+                    for (i = 0; i < heroesCount; i++)
+                        if (hero [i].Alive)
+                            if (hero [i].Strength < 1)
+                            {
+                                hero [i].Strength = 0;
+                                removeAlly(i);
+                                if (!heroAlive)
+                                    break;
+                            }
+                            else {
+                                lblStrength [i].innerHTML = hero [i].Strength.toString();
+                                if (i == 0 && !heroResting) {
+                                    Strength = hero [0].Strength;
+                                    Strength_value.innerHTML = Strength.toString();
+                                }
+                                if (allAlliesPerished)
+                                    allAlliesPerished = false;
+                            }
+
+                    for (i = 0; i < enemiesCount; i++)
+                    {
+                        if (enemy [i].Alive)
+                            if (enemy [i].Strength > 0)
+                                lblStrength [i + 2].innerHTML = enemy [i].Strength;
+                            else {
+                                num_killed++;
+                                removeEnemy(i);
+                            }
+                    }
+
+                    clearInterval(timerID);
+                    phase = 1;
+
+                    exp_Cond = eval(fight.endCond);
+                    if (!exp_Cond)
+                        exp_Cond = eval(endCondition);
+
+                    if (num_killed == enemiesCount || exp_Cond || !heroAlive || allAlliesPerished)
+                    {
+                        if (num_killed == enemiesCount || exp_Cond) {
+                            fightEnd();
+                            if (num_killed == enemiesCount)
+                                readParagraph("win");
+                            else
+                                MusicStop();
+                            afterBattle();
+                            return;
+                        }
+                        else
+                        if (!heroAlive)
+                        {
+                            readParagraph("die");
+                            fightEnd();
+                            return;
+                        }
+                        else {
+                            heroesCount = 1;
+                            hero [0].Agility = Agility + AgilityFactor;
+                            hero [0].Strength = Strength;
+                            hero [0].Alive = true;
+                            hero [0].Hurt = false;
+                            hero_pictures [0].style.visibility = 'visible';
+                            iterImages(1).style.visibility = 'hidden';
+                            lblStrength [1].style.visibility = 'hidden';
+                            lblStrength [0].innerHTML = Strength.toString();
+                            lblStrength [0].style.top = 151 + 'px';
+                            lblStrength [0].style.visibility = 'visible';
+                            hero_pictures [0].title = null;
+                            hero_pictures [0].alt = null;
+                            heroResting = false;
+                        }
+                    }
+                }
+                else step--;
+
+                setFigurePositions(step);
+            }
+
+            function onLabel()
+            {
+                selectedOpponent = parseInt(this.id);
+                imgLabel0 = iterImages(selectedOpponent + 10);
+                imgLabel0.src = imgLabel [selectedOpponent].src;
+                imgLabel0.onclick = battleRound;
+                if (selectedOpponent != 0)
+                    selectedOpponent--;
+            }
+
+            function out_of_Label()
+            {
+                var S = new String;
+
+                S = imgLabel0.src;
+                imgLabel0.src = S.substring(0, S.length - 13) + ".bmp";
+                imgLabel0.onclick = null;
+            }
+
+            function battleRound()
+            {
+                var multiAttack_hero = false;
+                var hero_index;
+                var rand = new RandomNumberGenerator();
+                for (var i = 0; i < heroesCount; i++) {
+                    hero [i].Hurt = false;
+                    if (hero [i].Alive) {
+                        hero_index = i;
+                        dice = Math.floor(rand.next() * 6) + 1;
+                        //dice = Math.floor(Math.random() * 6) + 1;
+                        hero [i].Power = dice * 2 + hero [i].Agility;
+                    }
+                    else
+                    {
+                        multiAttack_hero = true;
+                        continue;
+                    }
+                }
+                var multiAttack_enemy = false;
+                var enemy_index;
+                for (i = 0; i < enemiesCount; i++) {
+                    enemy [i].Hurt = false;
+                    if (enemy [i].Alive) {
+                        enemy_index = i;
+                        dice = Math.floor(rand.next() * 6) + 1;
+                        //dice = Math.floor(Math.random() * 6) + 1;
+                        enemy [i].Power = dice * 2 + enemy [i].Agility;
+                        if (spiderAttack)
+                            if (dice == 4)
+                            {
+                                hero [0].Strength -= 2;
+                                hero [0].Power = 0;
+                            }
+                    }
+                    else
+                    {
+                        multiAttack_enemy = true;
+                        continue;
+                    }
+                }
+                /*if (multiAttack_enemy)
+                 if (enemiesCount == 3 && enemy [2].Alive)
+                 enemy_index = 2;
+                 else if (enemiesCount != 1 && enemy [1].Alive)
+                 enemy_index = 1;
+                 else enemy_index = 0;*/
+
+
+                /*if (heroesCount == 1 && enemiesCount > 1 && num_killed == 0)
+                 multiAttack_hero = true;*/
+
+                if (heroesCount == 1)
+                {
+                    if (multiAttack_enemy)
+                        multiAttack_enemy = false;
+
+                    if (enemiesCount - num_killed > 1)
+                        multiAttack_hero = true;
+                }
+
+                if (multiAttack_hero)
+                    for (i = 0; i < enemiesCount; i++)
+                        if (enemy [i].Alive)
+                            if (enemy [i].Power > hero [hero_index].Power) {
+                                if (enemy [i].StrengthFactor)
+                                    hero [hero_index].Strength -= enemy [i].StrengthFactor;
+                                else
+                                    hero [hero_index].Strength -= 2;
+                                if (!hero [hero_index].Hurt)
+                                    hero [hero_index].Hurt = true;
+                            }
+                            else
+                            if (i == selectedOpponent)
+                                if (hero [hero_index].Power > enemy [i].Power) {
+                                    if (hero [hero_index].StrengthFactor)
+                                        enemy [i].Strength -= hero [hero_index].StrengthFactor;
+                                    else
+                                        enemy [i].Strength -= 2;
+                                    enemy [i].Hurt = true;
+                                }
+
+
+                if (multiAttack_enemy) {
+                    if (heroesCount == 2 && !heroResting)
+                        selectedHero = 1;
+                    else
+                        selectedHero = 0;
+
+                    for (i = 0; i < heroesCount; i++)
+                        if (hero [i].Alive)
+                            if (hero [i].Power > enemy [enemy_index].Power) {
+                                if (hero [i].StrengthFactor)
+                                    enemy [enemy_index].Strength -= hero [i].StrengthFactor;
+                                else
+                                    enemy [enemy_index].Strength -= 2;
+
+                                if (!enemy [enemy_index].Hurt)
+                                    enemy [enemy_index].Hurt = true;
+                                hero [i].Hurt = false;
+                                //alert("hit: " + enemy_index + "," + enemy [enemy_index].Strength)
+                            }
+                            else
+                            if (i == selectedHero)
+                                if (enemy [enemy_index].Power > hero [i].Power) {
+                                    if (enemy [enemy_index].StrengthFactor)
+                                        hero [i].Strength -= enemy [enemy_index].StrengthFactor;
+                                    else
+                                        hero [i].Strength -= 2;
+                                    hero [i].Hurt = true;
+                                    //alert("hurt: " + enemy_index + "," + hero [i].Strength)
+                                }
+
+                }
+
+                if (!multiAttack_hero && !multiAttack_enemy)
+                    for (i = 0; i < enemiesCount; i++)
+                    {
+                        if (heroesCount == 2)
+                            hero_index = i;
+                        else
+                        {
+                            if (!enemy [i].Alive)
+                                continue;
+                            hero_index = 0;
+                        }
+                        if (enemy [i].Power > hero [hero_index].Power) {
+                            if (enemy [i].StrengthFactor)
+                                hero [hero_index].Strength -= enemy [i].StrengthFactor;
+                            else
+                                hero [hero_index].Strength -= 2;
+
+                            if (takeForce)
+                            {
+                                enemy [i].Strength += 2;
+                                if (enemy [i].Strength > 10)
+                                    enemy [i].Strength = 10;
+                            }
+
+
+                            if (!hero [hero_index].Hurt)
+                                hero [hero_index].Hurt = true;
+                        }
+                        else
+                        if (hero [hero_index].Power > enemy [i].Power) {
+                            if (hero [hero_index].StrengthFactor)
+                                enemy [i].Strength -= hero [hero_index].StrengthFactor;
+                            else
+                                enemy [i].Strength -= 2;
+
+                            if (takeForce)
+                            {
+                                hero [hero_index].Strength += 2;
+                                if (hero [hero_index].Strength > Max_Strength)
+                                    hero [hero_index].Strength = Max_Strength;
+                            }
+                            enemy [i].Hurt = true;
+                        }
+                    }
+
+                timerID = setInterval("battleSequence()", 200);
+            }
+
+            function battleEndCondition(cond)
+            {
+                endCondition = cond;
+            }
+
+
+            function afterBattle(loc1, endCond, loc2)
+            /* Функция, определяющая дальнейшие действия по завершении сражения.
+             * Первый параметр задает номер параграфа, на который надо перейти
+             * в случае победы героя (стандартное действие). Второй возможный
+             * параметр expRounds задается в виде ">n", ">=n", <n", "<=n", где
+             * n - количество раундов атаки. Если число проведенных раундов атаки
+             * определяется соотношением, заданным в expRounds, происходит
+             * переход на параграф loc2, который задается третьим параметром. */
+            {
+                var loc;
+
+                if (initBattle) {
+                    var len = afterBattle.arguments.length;
+                    if (len == 2)
+                        len--;
+                    else if (len > 3)
+                        len == 3;
+                    fight.spendRounds = 1;
+
+
+                    for (i = 0; i < 4; i++)
+                        if (i < len)
+                            fight [fightEndParamsStr [i + 1]] = afterBattle.arguments [i];
+                        else
+                            fight [fightEndParamsStr [i + 1]] = "";
+
+                    if (len == 3 && (endCond.charAt(0) == ">" || endCond.charAt(0) == "<"))
+                        fight.endCond = "fight.spendRounds" + fight.endCond;
+
+                    initBattle = false;
+
+                    //UrqExec("play Snd/FIGHT.mp3");
+                    MusicPlay("Snd/FIGHT.mp3");
+                    return;
+                }
+
+                BlockAllEvents.style.display = 'none';
+                BlockAllEvents.style.zIndex = -1;
+
+                exp_Cond = eval(fight.endCond);
+
+                if (!exp_Cond || exp_Cond == "")
+                    readParagraph(fight.numWin);
+                else
+                    readParagraph(fight.num2);
+
+                AgilityFactor = 0;
+                enemyPowerFactor = 0;
+                enemyStrengthFactor = 0;
+                heroesCount = 1;
+                heroResting = false;
+                takeForce = false;
+                spiderAttack = false;
+            }
+
+            function Flee(numArticle)
+            {
+                if (initBattle) {
+                    //flee = true;
+                    fleeArticle = numArticle;
+                }
+                else {
+                    fight.numWin = fleeArticle;
+                    fight.spendRounds = 0;
+                    fightEnd();
+                    afterBattle();
+                }
+            }
+
+            function createCopy()
+            {
+                removeItem('Копия');
+                copy = true;
+            }
+
+            function createLabel(Label, _id)
+            {
+                if (_id > 0)
+                    Label += _id;
+
+                imgLabel0 = createItem(Label, false);
+                imgLabel0.id = _id.toString();
+                if (_id == 0)
+                    imgLabel0.style.top = 107;
+                imgLabel0.style.left = 23;
+                imgLabel0.style.visibility = 'hidden';
+                imgLabel0.onmouseover = onLabel;
+                imgLabel0.onmouseout = out_of_Label;
+
+                Fight_window.appendChild(imgLabel0);
+
+                imgLabel [_id] = new Image();
+                imgLabel [_id].src = imgUrl + Label + "_Selected.bmp";
+            }
+
+            function iterImages(index)
+            {
+                var k = -1;
+
+                for (var i = 0; i < Fight_window.childNodes.length; i++)
+                {
+                    var child = Fight_window.childNodes [i];
+                    if (child.tagName == 'IMG' || child.tagName == 'DIV')
+                        k++;
+                    if (k == index)
+                        break;
+                }
+                return child;
+            }
+
+
+
+            function InitGame()
+            {
+
+                /*textHeight = document.body.clientHeight - Panel.style.posHeight - 10;
+                 document.all.Text.style.posHeight = textHeight;*/
+
+                readParagraph = parent.readParagraph;
+                MusicPlay = parent.MusicPlay;
+                MusicStop = parent.MusicStop;
+
+
+                Agility = parent.Agility;
+                Strength = parent.Strength;
+                Max_Strength = parent.Max_Strength;
+                Charm = parent.Charm;
+                binLuck = parent.binLuck;
+                Gold = parent.Gold;
+                foodAmount = parent.foodAmount;
+                RingUsed = parent.RingUsed;
+                Sword = parent.Sword;
+                FireSpell = parent.FireSpell;
+                Sack_MaxAmount = parent.Sack_MaxAmount;
+
+                textHeight = 0;
+                Panel = document.getElementById('Panel');
+                Fight_window = document.getElementById('Fight_window');
+                BlockAllEvents = document.getElementById('BlockAllEvents');
+
+                Agility_value = document.getElementById('Agility_value');
+                Strength_value = document.getElementById('Strength_value');
+                Charm_value = document.getElementById('Charm_value');
+                Luck_value = document.getElementById('Luck_value');
+                Gold_value = document.getElementById('Gold_value');
+
+
+                container_legend = document.getElementById('container_legend');
+                container_legend.style.top = textHeight + 130 + 'px';
+
+                var ind_y = textHeight + 7;
+                var k = 1;
+                var indicator;
+
+                sumLuck = 0;
+                for (var i = 0; i < 6; i++) {
+                    if (i < 5) {
+                        Inventory [i] = new Array;
+                        for (var j in itemsRusNames [i])
+                            Inventory [i][itemsRusNames [i][j]] = 0;
+                        var figImg = document.createElement("IMG");
+                        figImg.style.position = 'absolute';
+                        figImg.style.visibility = 'hidden';
+                        Fight_window.appendChild(figImg);
+                    }
+                    do
+                    {
+                        indicator = Panel.childNodes [k++];
+                    }
+                    while (indicator.tagName != 'DIV');
+                    indicator.style.top = ind_y + 'px';
+                    ind_y += 16;
+
+                    var Str;
+                    figureImages [i] = new Image();
+                    var j = Math.floor(i / 2);
+                    if (j * 2 == i)
+                        Str = imgUrl + "Hero_Move";
+                    else
+                        Str = imgUrl + "Enemy_Move";
+                    Str += j + ".bmp";
+                    figureImages [i].src = Str;
+                }
+
+                for (i = 0; i < 4; i++) {
+                    figureImages [i + 6] = new Image();
+                    j = Math.floor(i / 2);
+                    if (j * 2 == i)
+                        Str = imgUrl + "Hero_";
+                    else
+                        Str = imgUrl + "Enemy_";
+                    if (i < 2)
+                        Str += "Move3";
+                    else
+                        Str += "Hurt";
+                    Str += ".bmp";
+                    figureImages [i + 6].src = Str;
+                }
+
+
+                for (i = 0; i < 5; i++) {
+                    lblStrength [i] = document.createElement("DIV");
+                    lblStrength [i].style.position = 'absolute';
+                    lblStrength [i].style.color = 'Yellow';
+                    lblStrength [i].style.fontWeight = 'bold';
+                    lblStrength [i].style.visibility = 'hidden';
+                    Fight_window.appendChild(lblStrength [i]);
+
+                    if (i < 3) {
+                        enemy [i] = new Array(6);
+                        enemy [i].Agility = 0;
+                        enemy [i].Strength = 0;
+                        enemy [i].Power = 0;
+                        enemy [i].Hurt = false;
+                        enemy [i].Alive = false;
+                        enemy [i].StrengthFactor = 0;
+                    }
+                }
+
+                for (i = 0; i < 2; i++)
+                    hero [i] = new Array(6);
+
+                for (i = 0; i < 4; i++)
+                    createLabel("Fight_Label", i);
+
+                setInitial_Parameters();
+                init_Containers();
+                DisplayStuff();
+                Panel.onmousemove = point_on_containers;
+                //Panel.addEventListener("mousemove", point_on_containers, false);
+
+                fightStart(8,8,"ПЕРВЫЙ ВСАДНИК",9,8,"ВТОРОЙ ВСАДНИК");
+                afterBattle("187");
+            }
+
+        </script>
+        </head>
+
+<body bgcolor="RGB(255, 255, 200)" style="overflow : hidden" onload="InitGame()">
+<!--<div id = "Text" style="width : 640; height : 340; text-align : left; overflow : auto"></div>-->
+<div id = "Panel" style="width : 640; height : 140; text-align : center;
+   background-image : url('Img/Panel_temp.bmp')">
+    <div id = "container_legend" class = "legend"></div>
+    <div id = "Agility_value" class = "indicator" style="top : 20px"></div>
+    <div id = "Strength_value" class = "indicator" style="top : 35px"></div>
+    <div id = "Charm_value" class = "indicator" style="top : 50px"></div>
+    <div id = "Luck_value" class = "indicator" style="top : 65px"></div>
+    <div id = "Gold_value" class = "indicator" style="top : 80px"></div>
+    <div id = "Water_value" class = "indicator" style="top : 95px"></div>
+</div>
+<div id = "Fight_window" style="position: absolute; width: 340px; height: 255px; top: 100px; left: 200px; visibility: hidden; z-index: 1; background-image : url('Img/Fight_Window.bmp')"></div>
+<div id = "BlockAllEvents" style="position: absolute; width: 640px; height: 480px; top: 0px; left: 0px; visibility: hidden; display: 'none'"></div>
+
+<script language="javascript" type="text/javascript">
+
+
+    function PanelClear()
+    {
+        Agility_value.style.display = 'none';
+        Strength_value.style.display = 'none';
+        Charm_value.style.display = 'none';
+        Luck_value.style.display = 'none';
+        Gold_value.style.display = 'none';
+
+        var index1 = 6;
+        for (var i = 0; i < 5; i++)
+            for (var j in itemsRusNames [i])
+                if (Inventory [i][itemsRusNames [i][j]])
+                    document.images [index1++].style.visibility = 'hidden';
+
+        imgContainer.style.visibility = "hidden";
+        container_legend.innerHTML = "";
+
+        Panel.style.backgroundImage = "url('Img/Panel_die.bmp')";
+
+        BlockAllEvents.style.display = '';
+        BlockAllEvents.style.visibility = 'visible';
+        BlockAllEvents.style.zIndex = 1;
+    }
+
+    function PanelShow()
+    {
+        Agility_value.style.display = '';
+        Strength_value.style.display = '';
+        Charm_value.style.display = '';
+        Luck_value.style.display = '';
+        Gold_value.style.display = '';
+        Water_value.style.display = '';
+
+        Panel.style.backgroundImage = "url('Img/Panel_temp.bmp')";
+
+        BlockAllEvents.style.display = 'none';
+
+        selected_container = 0;
+        highlight_container(selected_container);
+    }
+
+    function nextRandomNumber()
+    {
+        this.seed = (this.seed*9301+49297) % 233280;
+        return this.seed/(233280.0);
+    }
+
+    function RandomNumberGenerator()
+    {
+        this.seed = new Date().getTime();
+        this.next = nextRandomNumber;
+        return this;
+    }
+
+
+</script>
+</body>
+</html>
