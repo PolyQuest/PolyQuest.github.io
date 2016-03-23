@@ -3606,7 +3606,7 @@ end
 
 :425
 <html>
-Если у вас есть [[ перстень одного из этих рыцарей | if 1 Перстень с изумрудом then goto 505 ]] , то вы знаете, что делать. <a href=btn:497>Иначе</a>.
+Если у вас есть [[ перстень одного из этих рыцарей | if 1 Перстень с изумрудом then goto 505 else goto 425 ]] , то вы знаете, что делать. <a href=btn:497>Иначе</a>.
 </html>
 
 end
@@ -4712,7 +4712,6 @@ proc endmusicloop
 var imgUrl = "#quest_path$/Img/";
 
 var isMobile = 'ontouchstart' in document.documentElement;
-//var isMobile = true;
 
 var newGame;
 var Agility, Strength, Max_Strength, Charm;
@@ -6173,16 +6172,16 @@ function createLabel(Label, _id)
    imgLabel0.style.left = '23px';
    imgLabel0.style.visibility = 'hidden';
 
-   if (!isMobile)
+   //if (!isMobile)
    {
         imgLabel0.onmouseover = onLabel;
         imgLabel0.onmouseout = out_of_Label;
    }
-   else
+   /*
    {
         imgLabel0.ontouchstart = onLabel;
         imgLabel0.ontouchend = out_of_Label;
-   }
+   }*/
 
    Fight_window.appendChild(imgLabel0);
 
