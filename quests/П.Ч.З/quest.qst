@@ -6418,7 +6418,11 @@ function createItem(itemStr, IsObject)
         Item.title = itemStr;     // Всплывающая подсказка (title или alt в зависимости от
         Item.alt = itemStr;       // браузера
         //Item.onmouseover = showHint;
-        Item.ondrag = dragItem;
+        if (!isMobile)
+            Item.ondrag = dragItem;
+        else
+            Item.ontouchmove = dragItem;
+
         for (var i in bonusParamsItems)
             if (bonusParamsItems [i] == itemStr) {
                 if (!isMobile)
