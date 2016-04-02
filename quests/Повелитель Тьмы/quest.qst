@@ -4563,6 +4563,8 @@ end
 :afterload
 <script>
 newGame = true;
+autoSelect = true;
+selectContainer(0);
 </script>
 end
 
@@ -4755,8 +4757,8 @@ var item_pos = {index0: -1, container: -1};
 //var itemInfo = {numContainer, container_startIndex, itemsAmount };
 var itemStack = [];
 
-var containers_posX = new Array(135, 172, 216, 251, 255, 605);
-var containers_posY = new Array(59, 20, 57, 26, 63, 30);
+var containers_posX = new Array(135, 172, 216, 251, 255);
+var containers_posY = new Array(59, 20, 57, 26, 63);
 
 var highlight_containers_posX = new Array(135, 147, 214, 220, 253);
 var highlight_containers_posY = new Array(59, 19, 56, 24, 61);
@@ -4770,6 +4772,7 @@ var selected_container = 0; // Sack
 var imgContainer = 0;
 var imgItem;
 var prev_pointed;
+var autoSelect = false;
 var drag = false;
 var inBasket = false;
 var imgBasket, item_moved = "";
@@ -4789,8 +4792,9 @@ var spiderAttack;
 var heroAlive;
 var enemy = new Array(3);
 var hero = new Array(2);
+var num_killed;
 var fightEndParamsStr = ["spendRounds", "numWin", "endCond", "num2"];
-var exp_Cond, endCondition;
+var exp_Cond, endCondition, loyaltyEndAction;
 var fleeArticle;
 var selectedOpponent, selectedHero;
 var AgilityFactor = 0;
@@ -4909,7 +4913,6 @@ function point_on_containers(e)
    var offset = getOffset(window.event || e);
    var x = offset.x;
    var y = offset.y;
-   //alert("x: " + x + ", y: " + y);
    var point_at = -1;
    if (x >= 135 && x <= 315 && y >= 20 && y <= 104)
       if (y < 59) {
@@ -4991,9 +4994,8 @@ function createItem(itemStr, IsObject)
         {
             fill_Containers();
             item_pos = findItemByString(itemStr);
-            prev_pointed = -1;
-            selected_container = item_pos.container;
-            selectContainer();
+            autoSelect = true;
+            selectContainer(item_pos.container);
         }
      };
    }
@@ -5016,7 +5018,7 @@ function init_Inventory()
        return;
 
    var container_startIndex = 12;
-   count = Panel.childNodes.length - container_startIndex;
+   var count = Panel.childNodes.length - container_startIndex;
 
    for (i = 0; i < count; i++)
        Panel.removeChild(Panel.childNodes [container_startIndex]);
@@ -5090,7 +5092,7 @@ function refresh_Container(container, index1, amount, max_height)
    var half_amount = Math.floor(amount / 2);
    var posX;
 
-    if (amount == half_amount * 2)
+   if (amount == half_amount * 2)
       posX = 455 + 10;
    else
       posX = 455 - Panel.childNodes [index1 + half_amount].width / 2 + 10;
@@ -5185,7 +5187,7 @@ function itemExists(itemStr)
 
 function addItem(itemStr)
 {
-   item_pos = findItemByString(itemStr);
+    item_pos = findItemByString(itemStr);
     if (item_pos.container == 0)
      if (itemsAmount [0] == Sack_MaxAmount) {
         alert("Ваш заплечный мешок полон!");
@@ -5252,7 +5254,8 @@ function removeItem(itemStr)
    Panel.removeChild(item_moved);
 
    refresh_Container(i, container_startIndex, itemsAmount [i], parseInt(Panel.style.height) - 10);
-   selectContainer();
+   autoSelect = true;
+   selectContainer(i);
 }
 
 function useItem(itemStr, newLoc, modLoc)
@@ -5277,14 +5280,8 @@ function eatFood()
 
 function show_legend(num)
 {
-   if (num != 5) {
-      container_legend.style.top = textHeight + 110 + 'px';
-      container_legend.style.left = containers_posX [num] + 'px';
-   }
-   else {
-      container_legend.style.top = textHeight + 70 + 'px';
-      container_legend.style.left = containers_posX [num] - 10 + 'px';
-   }
+   container_legend.style.top = textHeight + 110 + 'px';
+   container_legend.style.left = containers_posX [num] + 'px';
    container_legend.innerHTML = strContainers [num];
 }
 
@@ -5298,19 +5295,29 @@ function highlight_container(num)
 
    imgContainer = Panel.childNodes [num + 7];
    imgContainer.style.visibility = "visible";
-   imgContainer.onclick = selectContainer;
+   imgContainer.onclick = onSelectContainer;
    imgContainer.onmouseout = hideContainer;
    show_legend(num);
    prev_pointed = num;
 }
 
-function selectContainer()
+function onSelectContainer()
 {
+    autoSelect = false;
+    selectContainer(prev_pointed);
+}
+
+function selectContainer(sel_index)
+{
+   if (autoSelect)
+       highlight_container(sel_index);
+
    var itemIndex;
 
    var prev_container = selected_container;
-   if (prev_pointed != prev_container) {
-       var itemIndex = 12;
+   if (sel_index != prev_container) {
+
+      itemIndex = 12;
       for (var i = 0; i < prev_container; i++)
          itemIndex += itemsAmount [i];
       for (i = 0; i < itemsAmount [prev_container]; i++)
@@ -5318,14 +5325,15 @@ function selectContainer()
    }
 
    itemIndex = 12;
-   for (i = 0; i < prev_pointed; i++)
+   for (i = 0; i < sel_index; i++)
       itemIndex += itemsAmount [i];
 
-   for (i = 0; i < itemsAmount [prev_pointed]; i++)
+   for (i = 0; i < itemsAmount [sel_index]; i++)
       Panel.childNodes [itemIndex++].style.visibility = "visible";
 
-   selected_container = prev_pointed;
+   selected_container = sel_index;
 }
+
 
 function SaveGame()
 {
@@ -5480,7 +5488,7 @@ function CheckCharm(Loc1, Loc2)
       readParagraph(Loc2);
       return;
    }
-   var  dice = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
+   var dice = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
    if (dice <= Charm) {
       Charm++;
       readParagraph(Loc1);
@@ -5765,11 +5773,11 @@ function setFigurePositions(step)
     var enemy_X, enemy_Y;
     if (enemiesCount == 1)
        enemy_Y = 98;
-   else
-      if (enemiesCount == 2)
-         enemy_Y = 128 - 28 / 2 - figureImages [0].height;
-      else
-         enemy_Y = 128 - figureImages [0].height / 2 - 28 - figureImages [0].height;
+    else
+        if (enemiesCount == 2)
+            enemy_Y = 128 - 28 / 2 - figureImages [0].height;
+        else
+            enemy_Y = 128 - figureImages [0].height / 2 - 28 - figureImages [0].height;
 
    for (var i = 0; i < enemiesCount; i++) {
 
@@ -5838,7 +5846,7 @@ function battleSequence()
 					    allAlliesPerished = false;
 				}
 
-         for (i = 0; i < enemiesCount; i++)
+         for (var i = 0; i < enemiesCount; i++)
 		 {
             if (enemy [i].Alive)
                if (enemy [i].Strength > 0)
@@ -6105,7 +6113,7 @@ function afterBattle(loc1, endCond, loc2)
 	  fight.spendRounds = 1;
 
 
-      for (i = 0; i < 4; i++)
+      for (var i = 0; i < 4; i++)
          if (i < len)
             fight [fightEndParamsStr [i + 1]] = afterBattle.arguments [i];
          else
@@ -6295,26 +6303,28 @@ function InitGame()
 
 function PanelClear()
 {
-   Agility_value.style.display = 'none';
-   Strength_value.style.display = 'none';
-   Charm_value.style.display = 'none';
-   Luck_value.style.display = 'none';
-   Gold_value.style.display = 'none';
+    Agility_value.style.display = 'none';
+    Strength_value.style.display = 'none';
+    Charm_value.style.display = 'none';
+    Luck_value.style.display = 'none';
+    Gold_value.style.display = 'none';
+    Water_value.style.display = 'none';
 
-   var index1 = 6;
-   for (var i = 0; i < 5; i++)
-      for (var j in itemsRusNames [i])
-         if (Inventory [i][itemsRusNames [i][j]])
-            document.images [index1++].style.visibility = 'hidden';
 
-   imgContainer.style.visibility = "hidden";
-   container_legend.innerHTML = "";
+    var itemIndex = 12;
+    for (var i = 0; i < selected_container; i++)
+        itemIndex += itemsAmount [i];
+    for (i = 0; i < itemsAmount [selected_container]; i++)
+        Panel.childNodes [itemIndex++].style.visibility = "hidden";
 
-   Panel.style.backgroundImage = "url('#quest_path$/Img/Panel_die.bmp')";
+    imgContainer.style.visibility = "hidden";
+    container_legend.innerHTML = "";
 
-   BlockAllEvents.style.display = '';
-   BlockAllEvents.style.visibility = 'visible';
-   BlockAllEvents.style.zIndex = 1;
+    Panel.style.backgroundImage = "url('#quest_path$/Img/Panel_die.bmp')";
+
+    BlockAllEvents.style.display = '';
+    BlockAllEvents.style.visibility = 'visible';
+    BlockAllEvents.style.zIndex = 1;
 }
 
 function PanelShow()

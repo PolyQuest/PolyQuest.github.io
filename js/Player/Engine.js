@@ -333,13 +333,27 @@ Player.prototype.executeScript = function(code) {
 }
 
 Player.prototype.putVariablesToScript = function() {
+    var result;
     for (var key in Game.polyvars)
-        window [key] = Game.getVar(key.toLowerCase());
+        //if (/[A-Za-z_\$]+[A-Za-z0-9_\$]*/.test(key))
+        if ((result = key.match(/[A-Za-z_\$]+[A-Za-z0-9_\$]*/)) && result.length != 0 && result[0].length == key.length)
+            window [key] = Game.getVar(key.toLowerCase());
+        else
+            if (result.length != 0)
+            {
+                if (window [result[0]] == undefined)
+                    window.eval(result[0] + " = [];");
+                window.eval(key + "=" + Game.getVar(key.toLowerCase()) + ";");
+            }
 }
 
 Player.prototype.getVariablesFromScript = function() {
+    var result;
     for (var key in Game.polyvars)
-        Game.setVar(key.toLowerCase(), window [key]);
+        if ((result = key.match(/[A-Za-z_\$]+[A-Za-z0-9_\$]*/)) && result.length != 0 && result[0].length == key.length)
+            Game.setVar(key.toLowerCase(), window [key]);
+        else
+            Game.setVar(key.toLowerCase(), window.eval(key));
 }
 
 Player.prototype.createFrame = function(code) {

@@ -333,8 +333,10 @@ Quest.prototype.load = function(slot) {
 // JS-расширения: встроенные функции JavaScript для взаимодействия с URQL
 Quest.prototype.readParagraph = function(loc) {
     GlobalPlayer.goto(loc, 'goto');
-
     GlobalPlayer.continue();
+
+    /*GlobalPlayer.play('goto ' + loc + '&end');
+    GlobalPlayer.fin();*/
 }
 
 Quest.prototype.UrqExec = function(code) {
