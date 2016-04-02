@@ -6421,7 +6421,7 @@ function createItem(itemStr, IsObject)
         if (!isMobile)
             Item.ondrag = dragItem;
         else
-            Item.ontouchmove = dragItem;
+            Item.ontouchstart = dragItem;
 
         for (var i in bonusParamsItems)
             if (bonusParamsItems [i] == itemStr) {
