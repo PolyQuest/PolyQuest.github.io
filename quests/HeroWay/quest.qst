@@ -1,0 +1,1232 @@
+﻿polymorph true
+
+:start
+html true
+inv+ 1,ЛОВКОСТЬ
+inv+ 1,СИЛА
+inv+ 1,ОБАЯНИЕ
+inv+ 1,УДАЧА
+inv+ 1,ДЕНЬГИ
+inv+ 1,ЕДА
+;proc change_Agility
+;proc change_Strength
+;proc change_Luck
+;proc change_Gold
+goto code
+end
+
+:game
+<script>
+//DisplayStuff();
+if (newGame) InitGame();
+</script>
+;inv_СИЛА=#Strength$
+cls
+btn battle,Начать битву.
+btn display_luck,Вывести показания удачи.
+btn check_luck,Проверить удачу.
+btn check_charm,Проверить обаяние.
+btn throwdice,Кинуть кубики.
+;goto displaySpin
+
+end
+
+:throwdice
+proc dice
+btn game,Вернуться.
+end
+
+:displaySpin
+<script>
+DisplayStuff();
+/*SetParam(1, Agility);
+SetParam(2, Strength);
+SetParam(3, Luck);
+SetParam(4, Gold);*/
+</script>
+
+end
+
+:use_inv_Добавить параметр
+pln Введите название параметра:
+let invItem=
+input invItem
+cls
+<script>
+UrqExec("inv+ 1," + invItem);
+</script>
+goto game
+end
+
+:use_inv_Изменить параметр
+p Введите название предмета:
+let invItem=
+input invItem
+pln #invItem$
+let amount=0
+p Введите количество (0, чтобы удалить):
+input amount
+<script>
+if (amount>0) UrqExec("inv_" + invItem + "=" + amount); else UrqExec("invkill " + invItem);
+</script>
+goto game
+end
+
+:use_Параграф_Изменить параметр
+proc modify_paragraph
+goto game
+end
+
+
+:use_ЛОВКОСТЬ_Изменить параметр
+proc change_Agility
+goto game
+end
+
+:use_СИЛА_Изменить параметр
+proc change_Strength
+goto game
+end
+
+:use_СИЛА_Максимальное значение
+p Введите максимальное значение СИЛЫ:
+input Max_Strength
+goto game
+end
+
+:use_ОБАЯНИЕ_Изменить параметр
+proc change_Charm
+goto game
+end
+
+:use_ДЕНЬГИ_Изменить параметр
+proc change_Gold
+goto game
+end
+
+:use_ЕДА_Изменить параметр
+proc change_Food
+goto game
+end
+
+:modify_paragraph
+p Введите номер текущего параграфа:
+input num_par
+inv_Параграф=#num_par$
+end
+
+:change_Agility
+pln Введите новое значение ЛОВКОСТИ:
+input Agility
+inv_ЛОВКОСТЬ=#Agility$
+end
+
+:change_Strength
+if Strength > Max_Strength then Strength = Max_Strength
+pln Введите новое значение СИЛЫ:
+input Strength
+inv_СИЛА=#Strength$
+end
+
+:change_Charm
+pln Введите новое значение ОБАЯНИЯ:
+input Charm
+inv_ОБАЯНИЕ=#Charm$
+end
+
+:change_Luck
+pln Введите новое значение УДАЧИ:
+input Luck
+end
+
+:change_Gold
+pln Введите новое количество ДЕНЕГ:
+input Gold
+inv_ДЕНЬГИ=#Gold$
+end
+
+:change_Food
+pln Введите новое количество ЕДЫ:
+input foodAmount
+inv_ЕДА=#foodAmount$
+end
+
+:display_luck
+pln Незачёркнуты следующие показания удачи:
+<script>
+for (var i = 0; i < 6; i++)
+    if (Luck [i])
+        UrqExec("p " + (i + 1) + "#$#$");
+</script>
+btn game,Вернуться.
+end
+
+:check_luck
+proc dice
+btn checkLuck,Проверить удачу.
+btn cleanLuck,Почистить квадрат удачи.
+end
+
+
+:checkLuck
+<script>
+if (Luck [num-1])
+{
+    Luck [num-1] = false;
+    alert("Вам повезло!");
+}
+else
+    alert("Вам не повезло!");
+</script>
+goto game
+end
+
+:cleanLuck
+<script>
+Luck [num-1] = true;
+</script>
+goto game
+end
+
+:check_charm
+<script>
+if (Charm > 12 || Charm == 1)
+    CheckCharm(15);
+</script>
+proc dice
+btn check_charm2,Кинуть кубик снова.
+btn game,Вернуться.
+end
+
+:check_charm2
+dice=num
+proc dice
+btn checkCharm,Проверить обаяние.
+btn game,Вернуться.
+end
+
+:checkCharm
+dice=dice+num
+<script>
+CheckCharm(dice);
+</script>
+goto game
+end
+
+
+:battle
+<script>
+i=null;
+enemiesCount=null;
+</script>
+instr battle_str=
+StrengthFactor=0
+enemyStrengthFactor=0
+PowerFactor=0
+enemyPowerFactor=0
+btn battle_params,Ввести параметры противников.
+btn damage,Изменить боевые параметры.
+btn allies,Ввести союзников.
+btn game,Вернуться.
+end
+
+:battle_params
+enemiesCount=1
+pln Введите количество противников (1 по умолчанию):
+input enemiesCount
+i=1
+:params_loop
+p Введите ЛОВКОСТЬ #i$-го противника:
+input Agility#i$
+pln #Agility#i$$
+p Введите СИЛУ #i$-го противника:
+input Strength#i$
+pln #Strength#i$$
+i=i+1
+if i<=enemiesCount then goto params_loop
+i=1
+instr battle_str=#battle_str$fightStart(
+<script>
+i=null;
+enemiesCount=null;
+</script>
+
+:battle_init
+if i>1 then instr battle_str=#battle_str$,
+instr battle_str=#battle_str$#Agility#i$$,#Strength#i$$,"#i$-й противник"
+i=i+1
+if i<=enemiesCount then goto battle_init
+instr battle_str=#battle_str$)
+<script>
+expr_action = '#battle_str$';
+alert(expr_action)
+</script>
+<html>
+<a href="javascript: eval(expr_action)">Начать битву.</a><br />
+<a href="javascript: fightEnd()">Прервать битву.</a>
+</html>
+
+end
+
+:allies
+instr battle_str=
+;instr haveAlly=y
+mode=0
+pln Будете ли Вы сражаться в паре с союзником? (введите 1/0) (да/нет)
+input mode
+;if haveAlly="y" or haveAlly="Y" then instr battle_str=callAlly else instr battle_str=fightStart( & goto battle_init
+if mode=0 then instr coop=false else instr coop=true
+p Введите ЛОВКОСТЬ союзника:
+input Agility0
+pln #Agility0$
+p Введите СИЛУ союзника:
+input Strength0
+pln #Strength0$
+instr battle_str=callAlly(#Agility0$,#Strength0$,#coop$)##59$
+btn battle_params,Ввести параметры противников.
+btn damage,Изменить боевые параметры.
+btn game,Вернуться.
+
+end
+
+:damage
+damageFactor=0
+pln Меняем боевые параметры у противника (по умолчанию - 0) или у себя (1)?
+input damageFactor
+p Введите новый параметр повреждений (столько сил надо отнимать при каждом ударе, 2 по умолчанию): 
+if damageFactor=0 then input enemyStrengthFactor & pln #enemyStrengthFactor$ else input StrengthFactor & pln #StrengthFactor$
+p Введите модификатор силы удара (0 по умолчанию, отрицательный - на столько единиц силу удара надо уменьшить): 
+if damageFactor=0 then input enemyPowerFactor & pln #enemyPowerFactor$ else input PowerFactor & pln #PowerFactor$
+btn battle_params,Ввести параметры противников.
+btn allies,Ввести союзников.
+btn damage,Изменить боевые параметры.
+btn game,Вернуться.
+
+end
+
+:dice
+<html>
+<form name=frm><table align=center><tr><td align=center><br>
+<select name=sel onclick='throws()'><option name=one selected>ОДИН</option><option name=two>ДВА</option><option name=three>ТРИ</option></select>
+<input type=button value='Бросить' onmousedown='throws("rot")##59$' onmouseup='throws("dis")##59$'>
+<tr><td><br>
+<table align=center border=0 bgcolor=##35$CAE1FF width=200 height=100>
+<tr><td align=center><img name=dimg1 id=im1 src=#quest_path$/Img/dice1.gif width=100 height=100 onload='throws()'>
+<img style='display:none##59$' src=#quest_path$/Img/dice2.gif name=dimg2 id=im2 width=100 height=100>
+<img style='display:none##59$' src=#quest_path$/Img/dice3.gif name=dimg3 id=im3 width=100 height=100>
+</td></tr></table>
+</td></tr></table></form>
+<br />
+</html>
+end
+
+
+:die
+<html>
+Вы умерли!
+</html>
+end
+
+:onsave
+<script>
+SaveGame();
+</script>
+end
+
+:onload
+<script>
+LoadGame();
+</script>
+end
+
+:code
+let Agility=0
+let Max_Strength=0
+let Strength=0
+let StrengthFactor=0
+let Charm=0
+let binLuck=0
+let Gold=0
+let foodAmount=0
+inv+ 1,Параграф
+
+<appendContent elementId="framebox">
+<div id = "Fight_window" style="position: absolute; width: 340px; height: 255px; visibility: hidden; z-index: 1; background-image : url('#quest_path$/Img/Fight_Window.bmp')"></div>
+<div id = "BlockAllEvents" style="position: absolute; width: 640px; height: 480px; top: 0px; left: 0px; visibility: hidden; display: 'none'"></div>
+</appendContent>
+
+
+<appendScript element="body">
+var imgUrl = "#quest_path$/Img/";
+var newGame = true;
+var Agility, Strength, Max_Strength;
+var sumLuck, binLuck;
+var Luck = new Array(6);
+var Gold;
+var Fight_window, BlockAllEvents;
+var initBattle = true;
+var step = 0, phase = 1;
+var figureImages = new Array();
+var enemy_pictures = new Array(3);
+var hero_pictures = new Array(2);
+var timerID;
+var fight = new Array;
+var enemiesCount;
+var heroesCount = 1;
+var heroResting;
+var heroAlive;
+var enemy = new Array(3);
+var hero = new Array(2);
+//var flee = false;
+var ally = false;
+var selectedOpponent;
+var AgilityFactor = 0;
+var PowerFactor = 0;
+var enemyPowerFactor = 0;
+var enemyStrengthFactor = 0;
+var lblStrength = new Array(5);
+var imgLabel = new Array(4);
+var imgLabel0;
+var lbl_ypos = new Array(3);
+var expr_action = new String;
+var spin1, spin2, spin3, spin4;
+
+var tt;
+var arg;
+var rand;
+//set the number of dice to throw
+//tt="ONE" OR "TWO" OR "THREE";
+var num;
+
+
+function createItem(itemStr)
+{
+   Item = document.createElement("IMG");
+   Item.src = imgUrl + itemStr + ".bmp";
+   Item.position = "absolute";   
+   Item.style.visibility = 'visible';
+   
+   return Item;
+}
+
+
+function LoadGame()
+{
+   /*if (!newGame)
+         readParagraph("start");*/
+
+    for (var i = 0; i < 6; i++) {
+        if (binLuck % 2)
+           Luck [i] = true;
+        else
+            Luck [i] = false;
+
+        binLuck = Math.floor(binLuck / 2);
+    }
+	  readParagraph("game");
+   //}
+   return 1; 
+}
+
+function SaveGame()
+{
+    //readParagraph("modify_paragraph");
+    binLuck = 0;
+    for (var i = 0; i < 6; i++) {
+        binLuck *= 2;
+        if (Luck [5 - i])
+            binLuck++;
+    }
+
+    return 1;
+}
+
+function DisplayStuff()
+{
+   /*spin1.DefaultValue = Agility;
+   spin2.DefaultValue = Strength;   
+   spin3.DefaultValue = Luck;
+   spin4.DefaultValue = Gold;*/
+   
+   /*document.all.Agility_value.innerHTML = "<a href=btn:change_Agility>" + Agility + "</a>";
+   document.all.Strength_value.innerHTML = "<a href=btn:change_Strength>" + Strength + "</a>";
+   document.all.Luck_value.innerHTML = "<a href=btn:change_Luck>" + Luck + "</a>";
+   document.all.Gold_value.innerHTML = "<a href=btn:change_Gold>" + Gold + "</a>";*/
+}
+
+function setInitial_Parameters()
+{
+    var dice1 = Math.floor(Math.random() * 6);
+    var dice2 = Math.floor(Math.random() * 6);
+    for (var i = 0; i < 6; i++)
+        if (i != dice1 && i != dice2)
+            Luck [i] = true;
+        else
+            Luck [i] = false;
+
+    newGame = false;
+}
+
+function CheckCharm(dice)
+{
+    if (Charm > 12 || dice <= Charm) {
+        alert('Вам повезло!');
+        if (Charm <= 12)
+        {
+            Charm++;
+            UrqExec("inv_ОБАЯНИЕ=" + Charm);
+        }
+    }
+    else {
+        alert('Вам не повезло!');
+        if (Charm > 1)
+        {
+            Charm--;
+            UrqExec("inv_ОБАЯНИЕ=" + Charm);
+        }
+    }
+
+    //readParagraph("game");
+}
+
+function CheckLuck()
+{   
+   var rand = new RandomNumberGenerator();   
+   var num = Math.floor(rand.next() * 6) + Math.floor(rand.next() * 6) + 2;
+   if (num <= Luck)
+      alert("Вам повезло!");   	     
+   else
+      alert("Вам не повезло!");
+   
+   if (Luck > 0)
+      Luck--;
+
+   readParagraph("game");
+}
+
+function fightStart(Agility1, Strength1, enemyDesc1)
+{
+   BlockAllEvents.style.display = '';
+   BlockAllEvents.style.visibility = 'visible';
+   BlockAllEvents.style.zIndex = 1;
+   Fight_window.style.display = '';
+   Fight_window.style.visibility = 'visible';
+   Fight_window.style.zIndex = 2;
+   
+   num_killed = 0;
+   enemiesCount = Math.floor(fightStart.arguments.length / 3);
+   
+   for (i = 0; i < enemiesCount; i++) {
+      enemy [i].Agility = fightStart.arguments [i * 3];
+      enemy [i].Strength = fightStart.arguments [i * 3 + 1];
+      enemy [i].StrengthFactor = enemyStrengthFactor;      
+      enemy [i].Alive = true;
+      desc = fightStart.arguments [i * 3 + 2] + "\r\nЛовкость " + enemy [i].Agility;
+      enemy_pictures [i] = Fight_window.childNodes [i + 2];
+      enemy_pictures [i].style.visibility = 'visible';
+      enemy_pictures [i].title = desc;
+      enemy_pictures [i].alt = desc;
+
+      lblStrength [i + 2].innerText = enemy [i].Strength.toString();
+      lblStrength [i + 2].style.visibility = 'visible';
+   }
+   
+   if (!heroResting) {
+	   hero [0].Agility = Agility;
+	   hero [0].Strength = Strength;
+	   hero [0].StrengthFactor = StrengthFactor;
+	   hero [0].Alive = true;
+	   hero [0].Hurt = false;
+   }
+   
+   if (enemiesCount == 2)
+      lbl_ypos [0] = 128 - 21  / 2 - 51;
+   else
+      if (enemiesCount == 3) 
+         lbl_ypos [0] = 128 - 51 / 2 - (21 + 51);
+         
+   hero_pictures [0] = Fight_window.childNodes [0];
+   hero_pictures [0].style.visibility = 'visible';
+   if (ally) {
+      hero_pictures [1] = Fight_window.childNodes [1];
+	  hero_pictures [1].style.visibility = 'visible';	  
+	  
+	  if (!heroResting)
+    	  desc = "Союзник\r\nЛовкость " + hero [1].Agility;
+	  else
+	      desc = "Союзник\r\nЛовкость " + hero [0].Agility;
+	  hero_pictures [1].title = desc;
+	  hero_pictures [1].alt = desc;
+	  lblStrength [0].style.top = 120 + 'px';
+   }
+   else
+      lblStrength [0].style.top = 151 + 'px';
+   
+   lblStrength [0].style.left = 246 + 'px';
+   lblStrength [0].innerText = Strength.toString();
+   lblStrength [0].style.visibility = 'visible';
+   if (ally) {
+      lblStrength [1].style.top = 194 + 'px';
+      lblStrength [1].style.left = 246 + 'px';
+	  if (!heroResting)
+         lblStrength [1].innerText = hero [1].Strength.toString();
+	  else
+         lblStrength [1].innerText = hero [0].Strength.toString();
+      lblStrength [1].style.visibility = 'visible';
+   }
+   
+   setFigurePositions(0);
+   
+   for (i = 0; i < enemiesCount; i++) {
+      if (i) {
+			 if (heroesCount == 1) {
+				 lbl_ypos [i] = lbl_ypos [i - 1] + 51 + 21;
+				 imgLabel0 = Fight_window.childNodes [i + 11];
+				 imgLabel0.style.top = lbl_ypos [i] + 'px';
+			 }	
+      }
+      else
+         if (enemiesCount == 1 || heroesCount == 2)
+            imgLabel0 = Fight_window.childNodes [10];
+         else {
+            imgLabel0 = Fight_window.childNodes [11];
+            imgLabel0.style.top = lbl_ypos [0] + 'px';
+         }
+               
+      imgLabel0.style.visibility = 'visible';
+      
+      lblStrength [i + 2].style.top = parseInt(enemy_pictures [i].style.top) +
+      										 enemy_pictures [i].height + 3 + 'px';
+      lblStrength [i + 2].style.left = 303 + 'px';
+      
+   }
+
+   
+   initBattle = true;
+   selectedOpponent = -1;
+}
+
+function fightEnd()
+{
+   for (i = 0; i < enemiesCount; i++)
+	 if (enemy [i].Alive) {
+		Fight_window.childNodes [i + 2].style.visibility = 'hidden';
+		lblStrength [i + 2].style.visibility = 'hidden';
+		if (enemiesCount > 1)
+		   Fight_window.childNodes [i + 11].style.visibility = 'hidden';
+	 }
+   if (enemiesCount == 1)
+	  Fight_window.childNodes [10].style.visibility = 'hidden';
+	 
+   Fight_window.childNodes [14].style.visibility = 'hidden';
+      
+   for (i = 1; i < heroesCount; i++) {
+	  Fight_window.childNodes [i].style.visibility = 'hidden';
+	  lblStrength [i].style.visibility = 'hidden';
+   }
+   
+   if (ally) {      
+      ally = false;
+	  heroesCount = 1;
+   }
+   
+   Fight_window.style.display = 'none';
+   
+   AgilityFactor = 0;
+   PowerFactor = 0;
+   enemyPowerFactor = 0;
+   enemyStrengthFactor = 0;
+   heroesCount = 1;
+   heroResting = false;
+
+   UrqExec("inv_СИЛА=" + Strength);
+   readParagraph("game");
+}
+
+function callAlly(Agility1, Strength1, coop)
+{
+  if (coop) {  
+     heroesCount = 2;
+	 j = 1;
+  }
+  else {
+	 heroResting = true;
+	 j = 0;
+  }
+  
+  hero [j].Agility = Agility1;
+  hero [j].Strength = Strength1;
+  hero [j].StrengthFactor = StrengthFactor;
+  hero [j].Alive = true;
+  hero [j].Hurt = false;  
+  
+  ally = true;  
+}
+
+function removeEnemy(_id)
+{
+   enemy [_id].Alive = false;
+
+   enemy_pictures [_id].style.visibility = 'hidden';
+   lblStrength [_id + 2].style.visibility = 'hidden';
+   if (enemiesCount != 1 && (heroesCount == 1 || !hero [1].Alive))
+      imgLabel0 = Fight_window.childNodes [_id + 11];
+   else
+      imgLabel0 = Fight_window.childNodes [10];
+
+   if (imgLabel0 != Fight_window.childNodes [10] || heroesCount == 1)
+   {
+      imgLabel0.style.visibility = 'hidden';
+	  if (heroesCount == 1)
+         Fight_window.childNodes [10].style.visibility = 'hidden'; // глюк после победы над 2-м противником, если их трое
+   }
+}
+
+function removeAlly(_id)
+{
+   hero [_id].Alive = false;
+   if (_id == 0)
+       if (!heroResting)
+	   {
+		  heroAlive = false;
+		  return;
+	   }
+	   else
+	      _id = 1;
+
+   hero_pictures [_id].style.visibility = 'hidden';
+   lblStrength [_id].style.visibility = 'hidden';
+   if (enemiesCount != 1)
+   {
+      imgLabel0 = Fight_window.childNodes [10];
+	  imgLabel0.style.visibility = 'hidden';
+
+	  lbl_ypos [0] = 128 - 21  / 2 - 51;
+
+	  for (i = 0; i < enemiesCount; i++) {
+		 if (i) {
+			 lbl_ypos [i] = lbl_ypos [i - 1] + 51 + 21;
+			 imgLabel0 = Fight_window.childNodes [i + 11];
+			 imgLabel0.style.top = lbl_ypos [i] + 'px';
+		 }
+		 else {
+			imgLabel0 = Fight_window.childNodes [i + 11];
+			imgLabel0.style.top = lbl_ypos [0] + 'px';
+		 }
+
+		 if (enemy [i].Alive)
+			imgLabel0.style.visibility = 'visible';
+	   }
+	}
+}
+
+function setFigurePositions(step)
+{
+	if (step == 3) {
+	    if (heroResting)
+     		j = 0;
+		else
+		    j = 1;
+  
+		 if (hero [0].Hurt && !heroResting)
+		 {
+			 hero_pictures [0].style.left = 228 + 'px';
+			 if (heroesCount == 1)
+				 hero_pictures [0].style.top = 107 + 'px';
+			 else
+				 hero_pictures [0].style.top = 78 + 'px';
+			 hero_pictures [0].src = figureImages [8].src;
+		 }
+		 else
+		 {
+			 hero_pictures [0].style.left = 236 + 'px';
+			 if (heroesCount == 1 && !heroResting)
+				 hero_pictures [0].style.top = 102 + 'px';
+			 else
+			     if (!heroResting)
+    				 hero_pictures [0].style.top = 73 + 'px';
+			 if (!heroResting)
+    			 hero_pictures [0].src = figureImages [6].src;
+			 else
+			     hero_pictures [0].src = figureImages [0].src;
+		 }
+		 if (heroesCount == 2 || heroResting)
+			 if (hero [j].Hurt) {
+				 hero_pictures [1].style.left = 228 + 'px';
+				 hero_pictures [1].style.top = 150 + 'px';
+				 hero_pictures [1].src = figureImages [8].src;
+			 }
+			 else {
+				 hero_pictures [1].style.left = 236 + 'px';
+				 hero_pictures [1].style.top = 145 + 'px';
+				 hero_pictures [1].src = figureImages [6].src;
+			 }
+	}
+	else {
+		 hero_pictures [0].style.left = 236 + 'px';
+		 if (!heroResting)
+    		 hero_pictures [0].src = figureImages [step * 2].src;
+		 else
+    		 hero_pictures [0].src = figureImages [0].src;
+
+		 if (heroesCount == 1 && !heroResting)
+			hero_pictures [0].style.top = 102 + 'px';
+		 else {
+			 hero_pictures [0].style.top = 73 + 'px';
+			 hero_pictures [1].style.left = 236 + 'px';
+			 hero_pictures [1].style.top = 145 + 'px';
+			 hero_pictures [1].src = figureImages [step * 2].src;
+		 }
+	}
+
+   if (enemiesCount == 1)
+      enemy_Y = 98;
+   else
+      if (enemiesCount == 2)
+         enemy_Y = 128 - 28 / 2 - figureImages [0].height;
+      else
+         enemy_Y = 128 - figureImages [0].height / 2 - 28 - figureImages [0].height;
+
+   for (i = 0; i < enemiesCount; i++) {
+
+      if (enemy [i].Alive) {
+          if (step == 3)
+            if (enemy [i].Hurt) {
+               enemy_X = 290;
+               enemy_Y += 7;
+               enemy_pictures [i].src = figureImages [9].src;
+            }
+            else {
+               enemy_X = 287;
+               enemy_pictures [i].src = figureImages [7].src;
+            }
+         else {
+            if (step == 2) {
+               enemy_X = 274;
+               enemy_Y += 14;
+            }
+            else
+               enemy_X = 287;
+
+            enemy_pictures [i].src = figureImages [step * 2 + 1].src;
+         }
+         enemy_pictures [i].style.left = enemy_X + 'px';
+         enemy_pictures [i].style.top = enemy_Y + 'px';
+      }
+      enemy_Y += figureImages [0].height + 14;
+      if (step != 2 || !enemy [i].Alive)
+         enemy_Y += 14;
+   }
+}
+
+function battleSequence()
+{
+   if (phase == 1) {
+      step++;
+      if (step == 4) {
+         step = 2;
+         phase = 2;
+      }
+   }
+   else
+      if (!step) {
+
+         fight.spendRounds++;
+
+		heroAlive = true;
+		for (i = 0; i < heroesCount; i++)
+		    if (hero [i].Alive)
+				if (hero [i].Strength < 1)
+				{
+				    hero [i].Strength = 0;
+					removeAlly(i);
+					if (!heroAlive)
+				        break;
+				}
+				else {
+				    if (i != 0 || !heroResting)
+     				    lblStrength [i].innerText = hero [i].Strength.toString();
+					else
+					    lblStrength [1].innerText = hero [0].Strength.toString();
+					if (i == 0 && !heroResting) {
+						Strength = hero [0].Strength;
+						//Strength_value.innerText = Strength.toString();
+					}					
+				}
+
+         for (i = 0; i < enemiesCount; i++)
+		 {
+            if (enemy [i].Alive)
+               if (enemy [i].Strength > 0)
+                  lblStrength [i + 2].innerText = enemy [i].Strength;
+			   else {
+                  num_killed++;
+                  removeEnemy(i);
+               }
+		 }
+
+         clearInterval(timerID);
+         phase = 1;
+
+         if (num_killed == enemiesCount || !heroAlive || heroResting && !hero [0].Strength)
+		 {
+			if (num_killed == enemiesCount) {
+			   fightEnd();
+			   return;
+            }
+            else
+               if (!heroResting)
+			    {				  
+                  fightEnd();
+				  readParagraph("die");
+                  return;
+               }
+               else {
+			      hero [0].Agility = Agility;
+				  hero [0].Strength = Strength;
+				  hero [0].StrengthFactor = StrengthFactor;
+				  hero [0].Alive = true;
+			      lblStrength [0].style.top = 151 + 'px';
+				  heroResting = false;
+               }
+		 }
+      }
+      else step--;
+
+   setFigurePositions(step);
+}       
+
+function onLabel()
+{
+   selectedOpponent = parseInt(this.id);
+   imgLabel0 = Fight_window.childNodes [selectedOpponent + 10];
+   imgLabel0.src = imgLabel [selectedOpponent].src;
+   if (selectedOpponent != 4) {
+      imgLabel0.onclick = battleRound;
+      if (selectedOpponent != 0)
+         selectedOpponent--;
+   }
+   else
+      imgLabel0.onclick = fightEnd;
+}
+
+function out_of_Label()
+{
+   var S = new String;   
+   
+   S = imgLabel0.src;
+   imgLabel0.src = S.substring(0, S.length - 13) + ".bmp";
+   imgLabel0.onclick = null;
+}
+
+function battleRound()
+{
+   var multiAttack_hero = false;
+   var hero_index;
+   var rand = new RandomNumberGenerator();
+   for (i = 0; i < heroesCount; i++) {
+	   hero [i].Hurt = false;
+	   if (hero [i].Alive) {
+	      hero_index = i;
+		  num = Math.floor(rand.next() * 6) + 1;
+	      //dice = Math.floor(Math.random() * 6) + 1;
+	      hero [i].Power = num * 2 + hero [i].Agility;
+		  if (PowerFactor)
+			  hero [i].Power += PowerFactor;
+	   }
+	   else
+	   {
+          multiAttack_hero = true;
+		  continue;
+	   }
+   }
+   var multiAttack_enemy = false;
+   var enemy_index;
+   for (i = 0; i < enemiesCount; i++) {
+        enemy [i].Hurt = false;
+        if (enemy [i].Alive) {
+		    enemy_index = i;
+			num = Math.floor(rand.next() * 6) + 1;
+	        //dice = Math.floor(Math.random() * 6) + 1;
+			enemy [i].Power = num * 2 + enemy [i].Agility;
+			if (enemyPowerFactor)
+     			enemy [i].Power += enemyPowerFactor;
+		}
+		else
+		{
+		   multiAttack_enemy = true;
+		   continue;
+		}
+	}
+	
+    if (heroesCount == 1)
+	{
+       if (multiAttack_enemy)
+	      multiAttack_enemy = false;
+
+	   if (enemiesCount - num_killed > 1)
+	      multiAttack_hero = true;
+	}
+
+   if (multiAttack_hero)
+      for (i = 0; i < enemiesCount; i++)
+	     if (enemy [i].Alive)
+			 if (enemy [i].Power > hero [hero_index].Power) {
+				 if (enemy [i].StrengthFactor)
+					hero [hero_index].Strength -= enemy [i].StrengthFactor;
+				 else
+					hero [hero_index].Strength -= 2;
+				 if (!hero [hero_index].Hurt)
+					 hero [hero_index].Hurt = true;
+			 }
+			  else
+				 if (i == selectedOpponent)
+					if (hero [hero_index].Power > enemy [i].Power) {
+					   if (hero [hero_index].StrengthFactor)
+						  enemy [i].Strength -= hero [hero_index].StrengthFactor;
+					   else
+						  enemy [i].Strength -= 2;
+					   enemy [i].Hurt = true;
+					}
+
+
+	if (multiAttack_enemy) {
+		if (heroesCount == 2)
+			selectedHero = 1;
+		else
+			selectedHero = 0;
+
+		  for (i = 0; i < heroesCount; i++)
+			 if (hero [i].Alive)
+				 if (hero [i].Power > enemy [enemy_index].Power) {
+					 if (hero [i].StrengthFactor)
+						enemy [enemy_index].Strength -= hero [i].StrengthFactor;
+					 else
+						enemy [enemy_index].Strength -= 2;
+
+					 if (!enemy [enemy_index].Hurt)
+						enemy [enemy_index].Hurt = true;
+					 hero [i].Hurt = false;					 
+				 }
+				 else
+					 if (i == selectedHero)
+						if (enemy [enemy_index].Power > hero [i].Power) {
+						   if (enemy [enemy_index].StrengthFactor)
+							  hero [i].Strength -= enemy [enemy_index].StrengthFactor;
+						   else
+							  hero [i].Strength -= 2;
+						   hero [i].Hurt = true;						   
+						}
+
+	}
+
+	if (!multiAttack_hero && !multiAttack_enemy)
+		for (i = 0; i < enemiesCount; i++)
+		{
+            if (heroesCount == 2)
+ 			    hero_index = i;
+			else
+			{
+			    if (!enemy [i].Alive)
+				    continue;
+				hero_index = 0;
+			}
+			if (enemy [i].Power > hero [hero_index].Power) {
+				 if (enemy [i].StrengthFactor)
+					hero [hero_index].Strength -= enemy [i].StrengthFactor;
+				 else
+					hero [hero_index].Strength -= 2;				
+
+
+			 if (!hero [hero_index].Hurt)
+				hero [hero_index].Hurt = true;
+		  }
+		  else
+			 if (hero [hero_index].Power > enemy [i].Power) {
+			 	if (hero [hero_index].StrengthFactor)
+				   enemy [i].Strength -= hero [hero_index].StrengthFactor;
+				else
+				   enemy [i].Strength -= 2;
+				
+				enemy [i].Hurt = true;
+			}
+		}
+
+   timerID = setInterval("battleSequence()", 200);
+}
+
+function createLabel(Label, _id)
+{
+   if (_id > 0 && _id < 4)
+      Label += _id;
+         
+   imgLabel0 = createItem(Label);
+   imgLabel0.id = _id.toString();
+   if (_id == 0)
+      imgLabel0.style.top = '107px';
+   if (_id == 4)
+      imgLabel0.style.top = '217px';
+   imgLabel0.style.left = '23px';
+   imgLabel0.style.visibility = 'hidden';
+   imgLabel0.onmouseover = onLabel;
+   imgLabel0.onmouseout = out_of_Label;   
+   
+   Fight_window.appendChild(imgLabel0);
+         
+   imgLabel [_id] = new Image();
+   imgLabel [_id].src = imgUrl + Label + "_Selected.bmp";
+}
+
+function InitGame()
+{
+   /*spin1=new CriosSpinEdit('spin1_id');
+   spin1.ReadOnly=true;
+   spin1.MinValue=0;
+   spin2=new CriosSpinEdit('spin2_id');
+   spin2.ReadOnly=true;
+   spin2.MinValue=0;
+   spin3=new CriosSpinEdit('spin3_id');
+   spin3.ReadOnly=true;
+   spin3.MinValue=0;
+   spin4=new CriosSpinEdit('spin4_id');
+   spin4.ReadOnly=true;
+   spin4.MinValue=0;*/
+   setInitial_Parameters();
+   //DisplayStuff();
+
+   Fight_window = document.getElementById('Fight_window');
+   BlockAllEvents = document.getElementById('BlockAllEvents');
+   
+   for (var i = 0; i < 6; i++) {
+      if (i < 5) {         
+         var figImg = document.createElement("IMG");
+         figImg.style.position = 'absolute';
+         figImg.style.visibility = 'hidden';
+         Fight_window.appendChild(figImg);
+      }
+      
+      figureImages [i] = new Image();      
+      var j = Math.floor(i / 2);
+      if (j * 2 == i)
+         Str = imgUrl + "Hero_Move";
+      else
+         Str = imgUrl + "Enemy_Move";
+      Str += j + ".bmp";
+      figureImages [i].src = Str;
+   }
+   
+   for (i = 0; i < 4; i++) {
+      figureImages [i + 6] = new Image();
+      j = Math.floor(i / 2);
+      if (j * 2 == i)
+         Str = imgUrl + "Hero_";
+      else
+         Str = imgUrl + "Enemy_";     
+      if (i < 2)
+         Str += "Move3";
+      else
+         Str += "Hurt";
+      Str += ".bmp";   
+      figureImages [i + 6].src = Str;     
+   }   
+   
+   
+   for (i = 0; i < 5; i++) {   
+      lblStrength [i] = document.createElement("DIV");
+      lblStrength [i].style.position = 'absolute';
+      lblStrength [i].style.color = 'Yellow';
+      lblStrength [i].style.fontWeight = 'bold';
+      lblStrength [i].style.visibility = 'hidden';
+      Fight_window.appendChild(lblStrength [i]);
+      
+      if (i < 4) {
+         enemy [i] = new Array(5);
+         enemy [i].Agility = 0;
+         enemy [i].Strength = 0;
+         enemy [i].Power = 0;
+         enemy [i].Hurt = false;
+         enemy [i].Alive = false;
+      }   
+   }
+   
+   for (i = 0; i < 2; i++)
+      hero [i] = new Array(6);
+	  
+   for (i = 0; i < 4; i++)
+      createLabel("Fight_Label", i);
+	  
+   createLabel("Flee_Label", 4);
+}
+
+
+function nextRandomNumber()
+{
+   this.seed = (this.seed*9301+49297) % 233280;
+   return this.seed/(233280.0);
+}
+
+function RandomNumberGenerator()
+{
+   this.seed = new Date().getTime();   
+   this.next = nextRandomNumber;
+   return this;
+}
+
+function dice()
+{  
+  num=Math.floor(rand.next() * 6) + 1;
+  return num;
+}
+
+function throws(arg)
+{  
+  var images = document.getElementById("textfield").getElementsByTagName("img");
+  tt=document.forms[0].sel.selectedIndex;  
+  if(tt==0)
+  {    
+	document.getElementById("im1").style.visibility="visible";
+    document.getElementById("im2").style.display="none";
+    document.getElementById("im3").style.display="none";
+   if(arg=="rot")
+   {
+     images[0].src="#quest_path$/Img/dice.gif";
+   }else if(arg=="dis"){
+     rand = new RandomNumberGenerator();
+     images[0].src="#quest_path$/Img/dice"+dice()+".gif";	 
+   }
+ }else if(tt==1)
+ {
+    document.getElementById("im1").style.visibility="visible";    
+    document.getElementById("im2").style.display="block";
+	document.getElementById("im3").style.display="none";
+    if(arg=="rot")
+    {
+      images[0].src="#quest_path$/Img/dice.gif";
+      images[1].src="#quest_path$/Img/dice.gif";
+
+    }else if(arg=="dis"){
+	  rand = new RandomNumberGenerator();
+      images[0].src="#quest_path$/Img/dice"+dice()+".gif";
+      images[1].src="#quest_path$/Img/dice"+dice()+".gif";
+    }
+  }else{
+    document.getElementById("im1").style.visibility="visible";
+    document.getElementById("im2").style.display="block";
+	document.getElementById("im3").style.display="block";
+    if(arg=="rot")
+    {
+      images[0].src="#quest_path$/Img/dice.gif";
+      images[1].src="#quest_path$/Img/dice.gif";
+      images[2].src="#quest_path$/Img/dice.gif";
+    }else if(arg=="dis"){
+	 rand = new RandomNumberGenerator();
+     images[0].src="#quest_path$/Img/dice"+dice()+".gif";
+     images[1].src="#quest_path$/Img/dice"+dice()+".gif";
+     images[2].src="#quest_path$/Img/dice"+dice()+".gif";
+   }
+  }
+}
+</appendScript>
+
+goto game
+end
