@@ -262,6 +262,12 @@ Quest.prototype.setVar = function(variable, value) {
         this.setItem(variable, value);
     } else {
         this.vars[variable.toLowerCase()] = value;
+
+        for (var key in Game.polyvars)
+            if (key.toLowerCase() == variable.toLowerCase()) {
+                GlobalPlayer.putVariableToScript(key)
+                break;
+            }
     }
 };
 

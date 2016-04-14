@@ -37,7 +37,7 @@ $(function() {
         $('#saveslots').find('.savebtn').on('click', function() {
             if (Game.getVar('urq_mode') == 'polyquest') {
                 Game.visitSystemLocation('onsave');
-                GlobalPlayer.putVariablesToScript();
+                GlobalPlayer.getVariablesFromScript();
             }
             Game.save($(this).data('slot'));
             returnToGame.click();
@@ -82,7 +82,9 @@ $(function() {
             Game.load($(this).data('slot'));
             Game.locked = true;
             if (Game.getVar('urq_mode') == 'polyquest') {
-                GlobalPlayer.putVariablesToScript();
+                for (var key in Game.polyvars)
+                    GlobalPlayer.putVariableToScript(key)
+
                 Game.visitSystemLocation('onload');
             }
 

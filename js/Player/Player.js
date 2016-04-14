@@ -78,9 +78,6 @@ Player.prototype.fin = function() {
         this.musicLoop = false;
         Game.visitSystemLocation('endmusicloop');
     }
-
-    if (Game.getVar('urq_mode') == 'polyquest' /*&& !calledFromScript*/)
-        this.putVariablesToScript();
 };
 
 /**
@@ -287,7 +284,7 @@ Player.prototype.setPolyVar = function(variable, value) {
 
     if (value != undefined) {
         this.setVar(variable, value);
-        window [variable] = value;
+        GlobalPlayer.putVariableToScript(variable);
     }
     //Game.setVar(variable, value);
 
@@ -304,6 +301,12 @@ Player.prototype.setPolyVar = function(variable, value) {
     // todo переместить в клиента
 Player.prototype.image = function(src) {
     if (src) {
+        if (src [0] == '=')
+            src = src.substr(1).trim();
+        var result;
+        if ((result = src.match(/("[^"]*")|('[^']*')/)) && result.length > 0)
+            src = src.substr(1, src.length - 2);
+
         this.print($('<img alt="Изображение" style="margin: 5px auto; display: block;">').attr('src', src).prop('outerHTML'), true);
     }
 };

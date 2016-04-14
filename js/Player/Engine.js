@@ -327,24 +327,22 @@ Player.prototype.printHTML = function(text) {
 };
 
 Player.prototype.executeScript = function(code) {
-    this.putVariablesToScript();
     window.eval(code);
     this.getVariablesFromScript();
 }
 
-Player.prototype.putVariablesToScript = function() {
+Player.prototype.putVariableToScript = function(variable) {
     var result;
-    for (var key in Game.polyvars)
-        //if (/[A-Za-z_\$]+[A-Za-z0-9_\$]*/.test(key))
-        if ((result = key.match(/[A-Za-z_\$]+[A-Za-z0-9_\$]*/)) && result.length != 0 && result[0].length == key.length)
-            window [key] = Game.getVar(key.toLowerCase());
-        else
-            if (result.length != 0)
-            {
-                if (window [result[0]] == undefined)
-                    window.eval(result[0] + " = [];");
-                window.eval(key + "=" + Game.getVar(key.toLowerCase()) + ";");
-            }
+    //if (/[A-Za-z_\$]+[A-Za-z0-9_\$]*/.test(key))
+    if ((result = variable.match(/[A-Za-z_\$]+[A-Za-z0-9_\$]*/)) && result.length != 0 && result[0].length == variable.length)
+        window [variable] = Game.getVar(variable.toLowerCase());
+    else
+        if (result.length != 0)
+        {
+            if (window [result[0]] == undefined)
+                window.eval(result[0] + " = [];");
+            window.eval(variable + "=" + Game.getVar(variable.toLowerCase()) + ";");
+        }
 }
 
 Player.prototype.getVariablesFromScript = function() {
@@ -405,9 +403,9 @@ function create(htmlStr) {
 }
 
 Player.prototype.appendContent = function(text, element, elementId) {
-    if (element == 'head')
+    if (element.toLowerCase() == 'head')
         document.head.innerHTML = document.head.innerHTML + text;
-    else if (element == 'body') {
+    else if (element.toLowerCase() == 'body') {
         document.body.innerHTML = document.body.innerHTML + text;
         //document.location.reload(false);
         var htmlCode = document.documentElement.innerHTML;
@@ -430,9 +428,9 @@ Player.prototype.appendScript = function(text, element, elementId) {
     var script = document.createElement("script");
     script.innerHTML = text;
 
-    if (element == 'head')
+    if (element.toLowerCase() == 'head')
         document.head.appendChild(script);
-    else if (element == 'body')
+    else if (element.toLowerCase() == 'body')
         document.body.appendChild(script);
     else
     {
@@ -447,9 +445,9 @@ Player.prototype.appendStyle = function(text, element, elementId) {
     css.type = "text/css";
     css.innerHTML = text;
 
-    if (element == 'head')
+    if (element.toLowerCase() == 'head')
         document.head.appendChild(css);
-    else if (element == 'body')
+    else if (element.toLowerCase() == 'body')
         document.body.appendChild(css);
     else
     {

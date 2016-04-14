@@ -27,7 +27,7 @@ Parser.prototype.parse = function(line) {
     if (Game.getVar('urq_mode') == 'polyquest') {
         if (line.toLowerCase().substring(0, 8) == '<iframe ')
             return GlobalPlayer.createFrame(this.openTags(line));
-        var code = line.match(/^<content\s+(frame\s*=\s*(('[^']*')|("[^"]*")))?\s*>/);
+        var code = line.match(/^<content\s+(frame\s*=\s*(('[^']*')|("[^"]*")))?\s*>/i);
         if (code != null && code.length > 0) {
             if (code.length > 2)
                 operand = code [2].substr(1, code [2].length - 2);
@@ -38,7 +38,7 @@ Parser.prototype.parse = function(line) {
             return GlobalPlayer.putContent(this.openTags(line), operand);
         }
 
-        var code = line.match(/^<(appendContent|appendScript|appendStyle)\s+((element\s*=\s*(('[^']*')|("[^"]*")))|(elementId\s*=\s*(('[^']*')|("[^"]*"))))\s*>/);
+        var code = line.match(/^<(appendContent|appendScript|appendStyle)\s+((element\s*=\s*(('[^']*')|("[^"]*")))|(elementId\s*=\s*(('[^']*')|("[^"]*"))))\s*>/i);
         if (code != null && code.length > 0) {
             var element, elementId;
             if (code [4] != undefined && code [4].length > 2)
@@ -53,11 +53,11 @@ Parser.prototype.parse = function(line) {
 
             line = line.substring(code [0].length, line.lastIndexOf('</' + code [1] + '>'));
 
-            if (code [1] == 'appendContent')
+            if (code [1].toLowerCase() == 'appendContent'.toLowerCase())
                 return GlobalPlayer.appendContent(this.openTags(line), element, elementId);
-            else if (code [1] == 'appendScript')
+            else if (code [1].toLowerCase() == 'appendScript'.toLowerCase())
                 return GlobalPlayer.appendScript(this.openTags(line), element, elementId);
-            else if (code [1] == 'appendStyle')
+            else if (code [1].toLowerCase() == 'appendStyle'.toLowerCase())
                 return GlobalPlayer.appendStyle(this.openTags(line), element, elementId);
         }
     }
@@ -75,23 +75,23 @@ Parser.prototype.parse = function(line) {
     var command = expl.slice(1).join(' ');
 
     if (operand == 'if') {
-        var cond = line.substring(line.indexOf('if ') + 3, line.indexOf(' then '));
+        var cond = line.substring(line.toLowerCase().indexOf('if ') + 3, line.toLowerCase().indexOf(' then '));
 
         var then;
         var els;
         var ifline = line;
 
         // todo переделать на обратную польскую
-        if (ifline.indexOf(' if ') != -1) {
-            ifline = ifline.substring(0, ifline.indexOf(' if ') + 1)
+        if (ifline.toLowerCase().indexOf(' if ') != -1) {
+            ifline = ifline.substring(0, ifline.toLowerCase().indexOf(' if ') + 1)
         }
 
-        if (ifline.indexOf(' else ') == -1) {
-            then = line.substring(line.indexOf(' then ') + 6);
+        if (ifline.toLowerCase().indexOf(' else ') == -1) {
+            then = line.substring(line.toLowerCase().indexOf(' then ') + 6);
             els = false;
         } else {
-            then = line.substring(line.indexOf(' then ') + 6, line.indexOf(' else '));
-            els = line.substring(line.indexOf(' else ') + 6);
+            then = line.substring(line.toLowerCase().indexOf(' then ') + 6, line.toLowerCase().indexOf(' else '));
+            els = line.substring(line.toLowerCase().indexOf(' else ') + 6);
         }
 
         var conditionResult = new Expression(this.openTags(cond)).calc();
@@ -185,7 +185,7 @@ Parser.prototype.parse = function(line) {
 
             break;
         case 'instr':
-            line = command;
+            line = this.openTags2(command);
 
             if (line.indexOf('=') > 0) {
                 GlobalPlayer.setVar(line.substring(0, line.indexOf('=')).trim(), new Expression('\'' + line.substr(line.indexOf('=') + 1) + '\'').calc());
@@ -205,8 +205,7 @@ Parser.prototype.parse = function(line) {
 
         case 'let':
             if (Game.getVar('urq_mode') == 'polyquest') {
-                line = command;
-
+                line = this.openTags2(command);
 
                 if (line.indexOf('=') > 0)
                     GlobalPlayer.setPolyVar(line.substring(0, line.indexOf('=')).trim(), new Expression(line.substr(line.indexOf('=') + 1)).calc());
@@ -218,6 +217,7 @@ Parser.prototype.parse = function(line) {
 
         // если ничего не помогло^w^w^w не оператор
         default:
+            line = this.openTags2(line);
             //  это выражение?
             if (line.indexOf('=') > 0) {
                 GlobalPlayer.setVar(line.substring(0, line.indexOf('=')).trim(), new Expression(line.substr(line.indexOf('=') + 1)).calc());
@@ -279,6 +279,16 @@ Parser.prototype.openTags = function (line) {
             return isFloat(result) ? result.toFixed(2) : result;
         });
     }
+
+    return line;
+};
+
+Parser.prototype.openTags2 = function (line) {
+    line = line.replace('<br>', '\r\n');
+    // &#;
+    line = line.replace(/&#[^;]+?;/g, function(exp) {
+        return String.fromCharCode(parseInt(exp.substr(2, (exp.length - 3))));
+    });
 
     return line;
 };

@@ -5711,7 +5711,7 @@ function removeAlly(_id)
 		 if (i) {
 			 lbl_ypos [i] = lbl_ypos [i - 1] + 51 + 21;
 			 imgLabel0 = Fight_window.childNodes [i + 11];
-			 imgLabel0.style.top = lbl_ypos [i + 'px'];
+			 imgLabel0.style.top = lbl_ypos [i] + 'px';
 		 }
 		 else {
 			imgLabel0 = Fight_window.childNodes [i + 11];

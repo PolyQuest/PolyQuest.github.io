@@ -142,15 +142,17 @@ Client.prototype.drawText = function () {
         div.find('img').each(function(index) {
             var src = $(this).attr('src');
             //Если предполагалась подстановка #quest_path$;
-            if (src && src.length != 0 && src [0] == '/')
-                src = src.substr(1);
+
             if (src && src.indexOf('http://') == -1 && src.indexOf('https://') == -1)
-                if (src.indexOf('/') == -1)
+                if (src.indexOf('/') <= 0 && src.indexOf('\\') <= 0) {
+                    if (src.length != 0 && (src [0] == '/' || src [0] == '\\'))
+                        src = src.substr(1);
                     if (files === null) {
                         $(this).attr('src', 'quests/' + Game.name + '/' + src);
                     } else {
                         $(this).attr('src', files[src.toLowerCase()]); // todo
                     }
+                }
                 else
                     $(this).attr('src', src);
         });
