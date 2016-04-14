@@ -311,9 +311,9 @@ end
 <input type=button value='Бросить' onmousedown='throws("rot")##59$' onmouseup='throws("dis")##59$'>
 <tr><td><br>
 <table align=center border=0 bgcolor=##35$CAE1FF width=200 height=100>
-<tr><td align=center><img name=dimg1 id=im1 src=#quest_path$/Img/dice1.gif width=100 height=100 onload='throws()'>
-<img style='display:none##59$' src=#quest_path$/Img/dice2.gif name=dimg2 id=im2 width=100 height=100>
-<img style='display:none##59$' src=#quest_path$/Img/dice3.gif name=dimg3 id=im3 width=100 height=100>
+<tr><td align=center><img name='dimg1' id='im1' src='#quest_path$/Img/dice1.gif' width=100 height=100 onload='throws()'>
+<img style='display:none##59$' src='#quest_path$/Img/dice2.gif' name='dimg2' id='im2' width=100 height=100>
+<img style='display:none##59$' src='#quest_path$/Img/dice3.gif' name='dimg3' id='im3' width=100 height=100>
 </td></tr></table>
 </td></tr></table></form>
 <br />
