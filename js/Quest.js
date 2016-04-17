@@ -98,9 +98,8 @@ Quest.prototype.next = function() {
         return false;
     }
 
-    //if (this.getVar('urq_mode') != null && this.getVar('urq_mode') != 'urqw') { // ripurq, dosurq, akurq
-    if (this.getVar('urq_mode') == 'ripurq' || this.getVar('urq_mode') == 'dosurq' ||
-        this.getVar('urq_mode') == 'akurq' ||  this.getVar('urq_mode') == 'polyquest') {
+    //if (this.getVar('urq_mode') != null && this.getVar('urq_mode') != 'urqw') { // ripurq, dosurq
+    if (this.getVar('urq_mode') == 'ripurq' || this.getVar('urq_mode') == 'dosurq') {
         // вырезать комментарий
         if (line.indexOf(';') != -1) {
             line = line.substring(0, line.indexOf(';'));
