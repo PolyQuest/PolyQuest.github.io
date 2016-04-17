@@ -68,6 +68,15 @@ MIME['mid'] = 'audio/midi';
 MIME['midi'] = 'audio/midi';
 MIME['mp3'] = 'audio/mp3';
 
+function truncate(value)
+{
+    if (value < 0) {
+        return Math.ceil(value);
+    }
+
+    return Math.floor(value);
+}
+
 
 
     

@@ -119,6 +119,28 @@ Parser.prototype.parse = function(line) {
             return GlobalPlayer.btn(com, desc);
         }
     }
+    else if (operand == 'xbtn') {
+        var xbtn = command.split(',');
+
+        if (xbtn.length > 2) {
+            var desc = this.prepareLine(xbtn.slice(xbtn.length - 1).join(',').trim());
+            var loc = xbtn[0].trim();
+            var com = xbtn[1].trim();
+
+            for (var i = 2; i < xbtn.length - 1; i++)
+                com = com + '&' + xbtn[i].trim();
+
+            if (loc.indexOf('&') == -1) {
+                loc = this.openTags(loc);
+                com = com + "&cls &goto " + loc;
+            }
+            else
+                com = loc + '&' + com;
+
+
+            return GlobalPlayer.btn(com, desc);
+        }
+    }
 
     //todo
     line = this.prepareLine(line);

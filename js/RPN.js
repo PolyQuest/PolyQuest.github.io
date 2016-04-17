@@ -17,7 +17,8 @@ function Expression(str) {
     this.tokenize = function (str) {
         str = ' ' + str + ' ';
         str = str.replace(/ not /g, '  not  '); // пока так (чтобы not мог прилипать ко всему)
-        return str.split(/(".+?"|'.+?'| AND | OR | NOT |\|\||&&|<>|!=|==|<=|>=|\+|\-|\*|\/|>|<|=|\(|\))/gi);
+        str = str.replace(/(^|\s+|\|\||&&|<>|!=|==|<=|>=|\+|\-|\*|\/|>|<|=|\(|\))int\(/gi, '$1 int (');
+        return str.split(/(".+?"|'.+?'| AND | OR | NOT |\|\||&&|<>|!=|==|<=|>=|\+|\-|\*|\/|>|<|=|\(|\)| INT )/gi);
     };
 
     /**
@@ -110,7 +111,13 @@ function Expression(str) {
                     var variable = temp.pop();
 
                     result = !(variable === true || variable > 0);
-                } else {
+                }
+                else if (token == 'int') {
+                    var variable = temp.pop();
+
+                    result = truncate(variable);
+                }
+                else {
                     var a = temp.pop();
                     var b = temp.pop();
 
@@ -190,6 +197,8 @@ function Expression(str) {
     this.getPriority = function (operand) {
         switch (operand) {
             case 'not':
+                return 16;
+            case 'int':
                 return 15;
             case '*':
             case '/':
