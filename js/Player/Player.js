@@ -306,7 +306,7 @@ Player.prototype.image = function(src) {
         var result;
         if ((result = src.match(/("[^"]*")|('[^']*')/)) && result.length > 0)
             src = src.substr(1, src.length - 2);
-        src = src.replace('\\', '/');
+        src = src.replace(/\\/g, '/');
 
         this.print($('<img alt="Изображение" style="margin: 5px auto; display: block;">').attr('src', src).prop('outerHTML'), true);
     }
@@ -319,7 +319,7 @@ Player.prototype.image = function(src) {
 Player.prototype.playMusic = function(src, loop) {
     var file;
 
-    src = src.replace('\\', '/');
+    src = src.replace(/\\/g, '/');
     //Если предполагалась подстановка #quest_path$;
     if (src && src.length != 0 && src [0] == '/')
         src = src.substr(1);
@@ -368,7 +368,7 @@ Player.prototype.playSound = function(src) {
         gameSound.pause();
 
     src = src.toString().trim();
-    src = src.replace('\\', '/');
+    src = src.replace(/\\/g, '/');
     if (files === null) {
         if (dirname == "")
             gameSound = new Audio('quests/' + Game.name + '/' + src);

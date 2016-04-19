@@ -62,11 +62,6 @@ function Quest(text) {
 
     this.polyvars = {};
     this.frames = {};
-
-    if (this.quest.length > 0 && this.quest[0].match(/\s*polymorph\s*true\s*/i)) {
-        mode = 'polyquest';
-        this.quest.shift();
-    }
 }
 
 
@@ -132,6 +127,30 @@ Quest.prototype.init = function() {
     };
     this.position = 0;
     this.realCurrentLoc = '';
+
+    if (this.quest.length == 0)
+        return;
+
+    var line = this.quest[0].replace(/^\s+/, '');
+    line = line.replace(/\t/g, ' ');
+    var expl = line.split(' ');
+    var operand = expl[0].toLowerCase().trim();
+    var command = expl.slice(1).join(' ');
+    if (operand == 'polymorph')
+    {
+        if (command.toString().toLowerCase().trim() == 'true') {
+            mode = 'polyquest';
+            this.quest.shift();
+        }
+    }
+    else if (line.indexOf('=') > 0) {
+        var varName = line.substring(0, line.indexOf('=')).trim();
+        if (varName == 'urq_mode')
+        {
+            mode = line.substr(line.indexOf('=') + 1);
+            this.quest.shift();
+        }
+    }
 
     /**
      * Собираем метки
@@ -204,7 +223,6 @@ Quest.prototype.init = function() {
         GlobalPlayer.setVar('urq_mode', mode);
         GlobalPlayer.setVar('quest_path', dirname);
     }
-
 };
 
 /**
