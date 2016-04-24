@@ -264,9 +264,9 @@ Player.prototype.passHTMLCode = function(text, tag) {
     var code = text.substring(tag.length, pos);
 
     if (tag == '<html>' && Game.HTMLMode)
-        this.passHTML(code);
+        this.passHTML(GlobalPlayer.Parser.openTags1(code));
     else if (tag == '<script>')
-        this.executeScript(code);
+        this.executeScript(GlobalPlayer.Parser.openTags2(code));
 }
 
 
@@ -402,7 +402,46 @@ function create(htmlStr) {
     return frag;
 }
 
+Player.prototype.readSrcFile = function(src)
+{
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', src, false);
+    xhr.send();
+    return xhr.responseText;
+
+    /*return new Promise(function(resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', src, true);
+        xhr.responseType = 'text';
+        xhr.onload = function() {
+            resolve(this.responseText);
+        };
+        xhr.onerror = reject;
+        xhr.send();
+    });*/
+
+    /*var fileReader = new FileReader();
+     fileReader.onload = function() {
+     Player.prototype.appendScript(fileReader.result, element, elementId);
+     };
+     fileReader.onerror = function() {
+     return;
+     }
+
+     fileReader.readAsText(src, 'CP1251');*/
+
+    /*$.ajax({
+     url: src,
+     dataType: "text"
+     }).done(function(msg) {
+     Player.prototype.appendScript(msg, element, elementId);
+     }).fail(function () {
+     return;
+     });*/
+}
+
 Player.prototype.appendContent = function(text, element, elementId) {
+
     if (element.toLowerCase() == 'head')
         document.head.innerHTML = document.head.innerHTML + text;
     else if (element.toLowerCase() == 'body') {
@@ -432,14 +471,13 @@ Player.prototype.appendScript = function(text, element, elementId) {
         document.head.appendChild(script);
     else if (element.toLowerCase() == 'body')
         document.body.appendChild(script);
-    else
-    {
+    else {
         element = document.getElementById(elementId);
         element.appendChild(script);
     }
 }
 
-Player.prototype.appendStyle = function(text, element, elementId) {
+Player.prototype.appendStyle = function(text, element, elementId, src) {
 
     var css = document.createElement("style");
     css.type = "text/css";

@@ -260,6 +260,12 @@ Player.prototype.setVar = function(variable, value) {
 
         this.image(file);
     }
+    else if (variable.toLowerCase() === 'music') {
+        this.playMusic(value.toString().trim());
+    }
+    else if (variable.toLowerCase() === 'play') {
+        this.playSound(value.toString().trim());
+    }
 
     Game.setVar(variable, value);
 };
@@ -321,12 +327,19 @@ Player.prototype.playMusic = function(src, loop) {
 
     src = src.replace(/\\/g, '/');
     //Если предполагалась подстановка #quest_path$;
-    if (src && src.length != 0 && src [0] == '/')
-        src = src.substr(1);
+    if (src && src.length != 0) {
+        if (src [0] == '=')
+            src = src.substr(1).trim();
+        var result;
+        if ((result = src.match(/("[^"]*")|('[^']*')/)) && result.length > 0)
+            src = src.substr(1, src.length - 2);
+        if (src.length != 0 && src [0] == '/')
+            src = src.substr(1);
+    }
 
     if (files === null)
     {
-        if (dirname == "")
+        if (dirname == "" || src.indexOf(dirname) < 0)
             file = 'quests/' + Game.name + '/' + src;
         else
             file = src;
@@ -369,6 +382,18 @@ Player.prototype.playSound = function(src) {
 
     src = src.toString().trim();
     src = src.replace(/\\/g, '/');
+    if (src && src.length != 0) {
+        if (src [0] == '=')
+            src = src.substr(1).trim();
+        var result;
+        if ((result = src.match(/("[^"]*")|('[^']*')/)) && result.length > 0)
+            src = src.substr(1, src.length - 2);
+        if (src.length != 0 && src [0] == '/')
+            src = src.substr(1);
+        if (dirname == '' || src.indexOf(dirname) < 0)
+            src = 'quests/' + Game.name + '/' + src;
+    }
+
     if (files === null) {
         if (dirname == "")
             gameSound = new Audio('quests/' + Game.name + '/' + src);

@@ -171,35 +171,49 @@ Quest.prototype.init = function() {
 
         // HTML-расширения
         else if (!Game.gameRestarted && (mode == 'akurq' || mode == 'polyquest')) {
-            var tag = str.match(/((<\/html>)|(<\/script>)|(<\/iframe>)|(<\/content>)|(<\/appendContent>)|(<\/appendScript>)|(<\/appendStyle>))\s*(;.*?)?$/g);
+            var closetag = new RegExp('((<\/html>)|(<\/script>)|(<\/iframe>)|(<\/content>)|(<\/appendContent>)|(<\/appendScript>)|(<\/appendStyle>))\s*(;.*?)?$', 'i');
+            var opentag;
+            var tag = str.match(closetag);
             if (tag == null || tag.length == 0)
                 continue;
 
-            tag = tag [0].substring(2, tag [0].indexOf('>'));
-            var opentag;
-            if (tag == 'html' || tag == 'script')
-                opentag = new RegExp('<' + tag + '>', 'i');
-            else
-                opentag = new RegExp('<' + tag + '(\\s+[^>]+)*>', 'i');
+            var index = str.search(closetag);
+            var index0 = str.indexOf(';');
 
-            if (str.indexOf(';') != -1 && tag == 'html')
-                this.quest[i] = str.substring(0, str.indexOf(';'));
+            if (index0 != -1 && index0 < index)
+                continue;
+
+            tag = tag [0].substring(2, tag [0].indexOf('>'));
+            if (tag == 'html' || tag == 'script')
+                opentag = new RegExp('^\\s*<' + tag + '>', 'i');
+            else
+                opentag = new RegExp('^\\s*<' + tag + '(\\s+[^>]+)*>', 'i');
 
             var lastpos = i;
 
-            i--;
             while (i >= 0) {
-                str = this.get(i);
                 if (str.indexOf(';') != -1 && tag == 'html')
                     str = str.substring(0, str.indexOf(';'));
-
-                this.quest[lastpos] = str + "\r\n" + this.quest[lastpos];
-                this.quest[i] = '';
-
-                if (str.trim().search(opentag) == 0)
+                if (str.search(opentag) == 0) {
+                    if (i == lastpos)
+                        this.quest[lastpos] = str;
+                    else
+                    {
+                        this.quest[lastpos] = str + "\r\n" + this.quest[lastpos];
+                        this.quest[i] = '';
+                    }
                     break;
+                }
+
+                if (i < lastpos)
+                {
+                    this.quest[lastpos] = str + "\r\n" + this.quest[lastpos];
+                    this.quest[i] = '';
+                }
 
                 i--;
+                if (i >= 0)
+                    str = this.get(i);
             }
         }
     }

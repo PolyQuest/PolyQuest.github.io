@@ -259,7 +259,7 @@ if i<=enemiesCount then goto battle_init
 instr battle_str=#battle_str$)
 <script>
 expr_action = '#battle_str$';
-alert(expr_action)
+//alert(expr_action)
 </script>
 <html>
 <a href="javascript: eval(expr_action)">Начать битву.</a><br />
@@ -308,7 +308,7 @@ end
 <html>
 <form name=frm><table align=center><tr><td align=center><br>
 <select name=sel onclick='throws()'><option name=one selected>ОДИН</option><option name=two>ДВА</option><option name=three>ТРИ</option></select>
-<input type=button value='Бросить' onmousedown='throws("rot")##59$' onmouseup='throws("dis")##59$'>
+<input type=button value='Бросить' onmousedown='throws("rot")##59$' onmouseup='throws("dis")##59$' ontouchstart='throws("rot")##59$' ontouchend='throws("dis")##59$'>
 <tr><td><br>
 <table align=center border=0 bgcolor=##35$CAE1FF width=200 height=100>
 <tr><td align=center><img name='dimg1' id='im1' src='#quest_path$/Img/dice1.gif' width=100 height=100 onload='throws()'>
@@ -350,9 +350,9 @@ let Gold=0
 let foodAmount=0
 inv+ 1,Параграф
 
+
 <appendContent elementId="framebox">
 <div id = "Fight_window" style="position: absolute; width: 340px; height: 255px; visibility: hidden; z-index: 1; background-image : url('#quest_path$/Img/Fight_Window.bmp')"></div>
-<div id = "BlockAllEvents" style="position: absolute; width: 640px; height: 480px; top: 0px; left: 0px; visibility: hidden; display: 'none'"></div>
 </appendContent>
 
 
@@ -363,7 +363,7 @@ var Agility, Strength, Max_Strength;
 var sumLuck, binLuck;
 var Luck = new Array(6);
 var Gold;
-var Fight_window, BlockAllEvents;
+var Fight_window;
 var initBattle = true;
 var step = 0, phase = 1;
 var figureImages = new Array();
@@ -403,7 +403,7 @@ function createItem(itemStr)
 {
    Item = document.createElement("IMG");
    Item.src = imgUrl + itemStr + ".bmp";
-   Item.position = "absolute";   
+   Item.style.position = "absolute";
    Item.style.visibility = 'visible';
    
    return Item;
@@ -506,9 +506,6 @@ function CheckLuck()
 
 function fightStart(Agility1, Strength1, enemyDesc1)
 {
-   BlockAllEvents.style.display = '';
-   BlockAllEvents.style.visibility = 'visible';
-   BlockAllEvents.style.zIndex = 1;
    Fight_window.style.display = '';
    Fight_window.style.visibility = 'visible';
    Fight_window.style.zIndex = 2;
@@ -592,7 +589,7 @@ function fightStart(Agility1, Strength1, enemyDesc1)
             imgLabel0 = Fight_window.childNodes [11];
             imgLabel0.style.top = lbl_ypos [0] + 'px';
          }
-               
+
       imgLabel0.style.visibility = 'visible';
       
       lblStrength [i + 2].style.top = parseInt(enemy_pictures [i].style.top) +
@@ -1067,10 +1064,11 @@ function createLabel(Label, _id)
    if (_id == 4)
       imgLabel0.style.top = '217px';
    imgLabel0.style.left = '23px';
+
    imgLabel0.style.visibility = 'hidden';
    imgLabel0.onmouseover = onLabel;
-   imgLabel0.onmouseout = out_of_Label;   
-   
+   imgLabel0.onmouseout = out_of_Label;
+
    Fight_window.appendChild(imgLabel0);
          
    imgLabel [_id] = new Image();
@@ -1095,7 +1093,6 @@ function InitGame()
    //DisplayStuff();
 
    Fight_window = document.getElementById('Fight_window');
-   BlockAllEvents = document.getElementById('BlockAllEvents');
    
    for (var i = 0; i < 6; i++) {
       if (i < 5) {         

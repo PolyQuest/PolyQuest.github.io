@@ -6155,6 +6155,8 @@ let track=1
    }
 </appendStyle>
 
+<appendStyle element="head" src="vendor/jquery/jquery-ui.css"></appendStyle>
+
 <script>
     var Panel = document.createElement('div');
     Panel.id = "Panel";
@@ -6212,6 +6214,11 @@ let track=1
     <div id = "Fight_window" style="position: absolute; width: 340px; height: 255px; visibility: hidden; z-index: 1; background-image : url('#quest_path$/Img/Fight_Window.bmp')"></div>
     <div id = "BlockAllEvents" style="position: absolute; width: 640px; height: 480px; top: 0px; left: 0px; visibility: hidden; display: 'none'"></div>
 </appendContent>
+
+<appendScript element="head" src="vendor/jquery/jquery-ui.js"></appendScript>
+<appendScript element="head" src="vendor/jquery/jquery-ui.min.js"></appendScript>
+<appendScript element="head" src="vendor/jquery/jquery.ui.touch-punch.min.js"></appendScript>
+
 
 <appendScript element="body">
 
@@ -6271,8 +6278,8 @@ var itemStack = [];
 var containers_posX = new Array(135, 172, 216, 251, 255);
 var containers_posY = new Array(59, 20, 57, 26, 63, 30);
 
-var highlight_containers_posX = new Array(135, 147, 214, 220, 253, 605);
-var highlight_containers_posY = new Array(59, 19, 56, 24, 61, 87);
+var highlight_containers_posX = new Array(135, 147, 214, 220, 253, 596);
+var highlight_containers_posY = new Array(59, 19, 56, 24, 61, 75);
 
 var container_legend;
 
@@ -6317,6 +6324,7 @@ var imgLabel = new Array(4);
 var imgLabel0;
 var lbl_ypos = new Array(3);
 var expr_action = new String;
+
 
 function getOffset(evt)
 {
@@ -6415,13 +6423,8 @@ function createItem(itemStr, IsObject)
           IsObject = true;
 
     if (IsObject) {
-        Item.title = itemStr;     // Всплывающая подсказка (title или alt в зависимости от
-        Item.alt = itemStr;       // браузера
-        //Item.onmouseover = showHint;
-        if (!isMobile)
-            Item.ondrag = dragItem;
-        else
-            Item.ontouchstart = dragItem;
+        ##36$(Item).tooltip();
+        Item.title = itemStr;
 
         for (var i in bonusParamsItems)
             if (bonusParamsItems [i] == itemStr) {
@@ -6442,6 +6445,7 @@ function createItem(itemStr, IsObject)
         itemStack.push(Item.title);
 
         Item.onload = function() {
+            ##36$(this).draggable({ containment: 'parent', scroll: false, revert: true, start: dragItem, stop: stopItem });
             itemStr = itemStack.shift();
             if (itemStack.length == 0)
             {
@@ -6550,14 +6554,11 @@ function refresh_Container(container, index1, amount, max_height)
    if (amount == half_amount * 2)
       posX = 455 + 10;  
    else   
-      posX = 455 - Panel.childNodes [index1 + half_amount].width / 2 + 10;
+      posX = 455 - (Panel.childNodes [index1 + half_amount].width) / 2 + 10;
    var i;   
    for (i = 0; i < half_amount; i++) {
       posX -= Panel.childNodes [index1 + i].width;
-      if (container == 4)
-         posX -= 10;
-      else   
-         posX -= 3;   
+      posX -= 10;
    }
    if (posX < 365) {
       var maxHeight1 = Panel.childNodes [index1].height;
@@ -6585,10 +6586,7 @@ function refresh_Container(container, index1, amount, max_height)
       imgItem.style.left = posX + 'px';
       imgItem.style.top = textHeight + (max_height - imgItem.height) / 2 + 'px';
       posX += imgItem.width;
-      if (container == 4)
-         posX += 10;
-      else
-         posX += 3;            
+      posX += 10;
    }   
 }
 
@@ -6872,7 +6870,7 @@ function show_legend(num)
 {
    container_legend.style.top = textHeight + 110 + 'px';
    container_legend.style.left = containers_posX [num] + 'px';
-   container_legend.innerText = strContainers [num];
+   container_legend.innerHTML = strContainers [num];
 }
 
 function highlight_container(num)
@@ -6997,11 +6995,11 @@ function LoadGame()
 
 function DisplayStuff()
 {
-    Agility_value.innerText = Agility.toString();
-    Strength_value.innerText = Strength.toString();
-    Charm_value.innerText = Charm.toString();
-    Luck_value.innerText = sumLuck.toString();
-    Gold_value.innerText = Gold.toString();
+    Agility_value.innerHTML = Agility.toString();
+    Strength_value.innerHTML = Strength.toString();
+    Charm_value.innerHTML = Charm.toString();
+    Luck_value.innerHTML = sumLuck.toString();
+    Gold_value.innerHTML = Gold.toString();
     modifyWater(0);
     init_Inventory();
 }
@@ -7018,7 +7016,7 @@ function modifyStrength(modStrength)
       Strength = Max_Strength;
    else if (Strength < 0)       
       Strength = 0;
-   Strength_value.innerText = Strength.toString();
+   Strength_value.innerHTML = Strength.toString();
    if (Strength == 0) {      
       alert("Вы потеряли много сил и умерли!");
       PanelClear();
@@ -7028,13 +7026,13 @@ function modifyStrength(modStrength)
 function modifyAgility(modAgility)
 {
    Agility += modAgility;
-   Agility_value.innerText = Agility.toString();
+   Agility_value.innerHTML = Agility.toString();
 }
 
 function modifyGold(modGold)
 {
    Gold += modGold;
-   Gold_value.innerText = Gold.toString();
+   Gold_value.innerHTML = Gold.toString();
 }
 
 function modifyWater(modWater)
@@ -7043,7 +7041,7 @@ function modifyWater(modWater)
    if (waterAmount > 0)
       Water_value.innerHTML = "<a class='clickable' href='javascript: drink()'>" + waterAmount.toString() + "</a>";
    else
-      Water_value.innerText = "0";
+      Water_value.innerHTML = "0";
 }
 
 function drink()
@@ -7095,7 +7093,7 @@ function CheckLuck(Loc1, Loc2)
    if (Luck [dice]) {
       Luck [dice] = false;
       sumLuck--;
-      Luck_value.innerText = sumLuck.toString();
+      Luck_value.innerHTML = sumLuck.toString();
 	  if (CheckLuck.arguments.length != 0)
 	     loc = eval(Loc1);
    }	     
@@ -7126,7 +7124,7 @@ function CheckCharm(Loc1, Loc2)
       Charm--;
       readParagraph(Loc2);
    }  
-   Charm_value.innerText = Charm.toString();
+   Charm_value.innerHTML = Charm.toString();
 }
 
 function fightStart(Agility1, Strength1, enemyDesc1)
@@ -7150,15 +7148,12 @@ function fightStart(Agility1, Strength1, enemyDesc1)
       enemy [i].StrengthFactor = enemyStrengthFactor;
       enemy [i].Loyalty = 0;
       enemy [i].Alive = true; 
-      var desc = fightStart.arguments [i * 3 + 2] + "\r\nЛовкость " + enemy [i].Agility;
+      var desc = "<html>" + fightStart.arguments [i * 3 + 2] + "<br>Ловкость " + enemy [i].Agility + "</html>";
       enemy_pictures [i] = Fight_window.childNodes [i + 2];
       enemy_pictures [i].style.visibility = 'visible';
-      if (isMobile)
-          enemy_pictures [i].rel = "tooltip";
       enemy_pictures [i].title = desc;
-      enemy_pictures [i].alt = desc;
       
-      lblStrength [i + 2].innerText = enemy [i].Strength.toString();
+      lblStrength [i + 2].innerHTML = enemy [i].Strength.toString();
       lblStrength [i + 2].style.visibility = 'visible';
    }
    
@@ -7188,12 +7183,12 @@ function fightStart(Agility1, Strength1, enemyDesc1)
       lblStrength [0].style.top = 151 + 'px';
    
    lblStrength [0].style.left = 246 + 'px';
-   lblStrength [0].innerText = Strength.toString();
+   lblStrength [0].innerHTML = Strength.toString();
    lblStrength [0].style.visibility = 'visible';
    if (copy) {
       lblStrength [1].style.top = 194 + 'px';
       lblStrength [1].style.left = 246 + 'px';
-      lblStrength [1].innerText = hero.Strength.toString();
+      lblStrength [1].innerHTML = hero.Strength.toString();
       lblStrength [1].style.visibility = 'visible';
    }   
    
@@ -7406,17 +7401,17 @@ function battleSequence()
             hero.Strength = 0;
          if (!copy) {
             Strength = hero.Strength;
-            Strength_value.innerText = Strength.toString();
-            lblStrength [0].innerText = Strength.toString();
+            Strength_value.innerHTML = Strength.toString();
+            lblStrength [0].innerHTML = Strength.toString();
          }
          else
-            lblStrength [1].innerText = hero.Strength.toString();
+            lblStrength [1].innerHTML = hero.Strength.toString();
          
          flee_id = 0;
          for (var i = 0; i < enemiesCount; i++)
             if (enemy [i].Alive)
                if (enemy [i].Strength > 0) {
-                  lblStrength [i + 2].innerText = enemy [i].Strength;
+                  lblStrength [i + 2].innerHTML = enemy [i].Strength;
                   if (enemy [i].Loyalty && enemy [i].Loyalty <= 3)
                      flee_id = i + 1;
                }
@@ -7681,6 +7676,9 @@ function InitGame()
             var figImg = document.createElement("IMG");
             figImg.style.position = 'absolute';
             figImg.style.visibility = 'hidden';
+            ##36$(figImg).tooltip({content: function () {
+                return ##36$(this).prop('title');
+            }});
             Fight_window.appendChild(figImg);
         }
         do
@@ -7750,53 +7748,13 @@ function InitGame()
         var offset = getOffset(window.event || e);
         var x = offset.x;
         var y = offset.y;
-        if (drag) {
-            if (x + item_moved.width > 596 && y + item_moved.height > 75)
-            {
-                imgBasket = Panel.childNodes [12];
-                if (imgContainer != imgBasket) {
-                    imgBasket.onmouseover = function() {imgBasket.style.visibility = 'visible'; inBasket = true; };
-                    imgBasket.onmouseout = hideContainer;
-                    item_moved.style.zIndex = 1;
-                    item_moved.style.visibility = 'hidden';
-                    imgBasket.style.visibility = 'visible';
-                    inBasket = true;
-                }
-                else
-                    if (!inBasket) {
-                        imgBasket.style.visibility = 'visible';
-                        inBasket = true;
-                }
-            }
-            else if (inBasket && imgContainer == imgBasket) {
-                hideContainer();
-                inBasket = false;
-            }
-            item_moved.style.left = x + 'px';
-            item_moved.style.top = y + 'px';
-        }
-        else
+        if (!drag)
             if (Strength)
                 point_on_containers(e, x, y);
     };
 
-    Panel.onmouseup = function()
-    {
-        if (drag) {
-            drag = false;
-            imgBasket.style.visibility = 'hidden';
-            if (inBasket) {
-                removeItem();
-                inBasket = false;
-            }
-            else {
-                item_moved.style.left = restore_x + 'px';
-                item_moved.style.top = restore_y + 'px';
-                item_moved.style.zIndex = 0;
-                item_moved = "";
-            }
-        }
-    };
+    imgBasket = Panel.childNodes [12];
+    imgBasket.onload = function() { ##36$(imgBasket).droppable ({ drop : dropItem }); };
 }
 
 function useItem()
@@ -7826,13 +7784,23 @@ function useItem()
          alert("Ваша сила равна максимальной - используйте заклятие исцеления позднее!");
 }
 
-function dragItem()
+function dragItem(event, ui)
 {
-   drag = true;
-   item_moved = this;
-   restore_x = parseInt(this.style.left);
-   restore_y = parseInt(this.style.top);
-   highlight_container(selected_container);
+    item_moved = event.target;
+    ##36$(imgBasket).show();
+    imgBasket.style.visibility = 'visible';
+}
+
+function stopItem(event, ui)
+{
+    ##36$(imgBasket).hide();
+}
+
+function dropItem(event, ui)
+{
+    ##36$(item_moved).tooltip('disable');
+    removeItem();
+    ##36$(imgBasket).hide();
 }
 
 function PanelClear()

@@ -38,6 +38,9 @@ var SoundPlay = Quest.prototype.SoundPlay;
 var SoundStop = Quest.prototype.SoundStop;
 var SaveGameFile = Quest.prototype.SaveGameFile;
 
+var srcReady = false;
+var scripts = [], styles, html_codes;
+
 function utf8_decode(utftext) {
     var string = "";
     var i = 0;
@@ -67,6 +70,11 @@ function utf8_decode(utftext) {
 
     return string;
 }
+
+
+/*$(function() {
+    $( document ).tooltip();
+});*/
 
 
 $(function() {

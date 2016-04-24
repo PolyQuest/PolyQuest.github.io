@@ -4604,110 +4604,71 @@ proc endmusicloop
    a.clickable: link {
       color : red;
    }
-
-   #tooltip
-   {
-       text-align: center;
-       color: #fff;
-       background: #111;
-       position: absolute;
-       z-index: 100;
-       padding: 15px;
-   }
-
-       #tooltip:after /* triangle decoration */
-       {
-           width: 0;
-           height: 0;
-           border-left: 10px solid transparent;
-           border-right: 10px solid transparent;
-           border-top: 10px solid #111;
-           content: '';
-           position: absolute;
-           left: 50%;
-           bottom: -10px;
-           margin-left: -10px;
-       }
-
-           #tooltip.top:after
-           {
-               border-top-color: transparent;
-               border-bottom: 10px solid #111;
-               top: -20px;
-               bottom: auto;
-           }
-
-           #tooltip.left:after
-           {
-               left: 10px;
-               margin: 0;
-           }
-
-           #tooltip.right:after
-           {
-               right: 10px;
-               left: auto;
-               margin: 0;
-           }
 </appendStyle>
 
+<appendStyle element="head" src="vendor/jquery/jquery-ui.css"></appendStyle>
+
 <script>
-        var Panel = document.createElement('div');
-        Panel.id = "Panel";
-        Panel.style.backgroundImage = "url('#quest_path$/Img/Panel_temp.bmp')";
-        Panel.style.position = "absolute";
-        Panel.style.width = '640px';
-        Panel.style.height = '140px';
+    var Panel = document.createElement('div');
+    Panel.id = "Panel";
+    Panel.style.backgroundImage = "url('#quest_path$/Img/Panel_temp.bmp')";
+    Panel.style.position = "absolute";
+    Panel.style.width = '640px';
+    Panel.style.height = '140px';
 
-        var element = document.getElementById("framebox");
-        element.appendChild(Panel);
+    var element = document.getElementById("framebox");
+    element.appendChild(Panel);
 
-        var div = document.createElement('div');
-        div.id = "container_legend";
-        div.className = "legend";
-        Panel.appendChild(div);
+    var div = document.createElement('div');
+    div.id = "container_legend";
+    div.className = "legend";
+    Panel.appendChild(div);
 
-        div = document.createElement('div');
-        div.id = "Agility_value";
-        div.className = "indicator";
-        div.style.top = '20px';
-        Panel.appendChild(div);
+    div = document.createElement('div');
+    div.id = "Agility_value";
+    div.className = "indicator";
+    div.style.top = '20px';
+    Panel.appendChild(div);
 
-        div = document.createElement('div');
-        div.id = "Strength_value";
-        div.className = "indicator";
-        div.style.top = '35px';
-        Panel.appendChild(div);
+    div = document.createElement('div');
+    div.id = "Strength_value";
+    div.className = "indicator";
+    div.style.top = '35px';
+    Panel.appendChild(div);
 
-        div = document.createElement('div');
-        div.id = "Charm_value";
-        div.className = "indicator";
-        div.style.top = '50px';
-        Panel.appendChild(div);
+    div = document.createElement('div');
+    div.id = "Charm_value";
+    div.className = "indicator";
+    div.style.top = '50px';
+    Panel.appendChild(div);
 
-        div = document.createElement('div');
-        div.id = "Luck_value";
-        div.className = "indicator";
-        div.style.top = '65px';
-        Panel.appendChild(div);
+    div = document.createElement('div');
+    div.id = "Luck_value";
+    div.className = "indicator";
+    div.style.top = '65px';
+    Panel.appendChild(div);
 
-        div = document.createElement('div');
-        div.id = "Gold_value";
-        div.className = "indicator";
-        div.style.top = '80px';
-        Panel.appendChild(div);
+    div = document.createElement('div');
+    div.id = "Gold_value";
+    div.className = "indicator";
+    div.style.top = '80px';
+    Panel.appendChild(div);
 
-        div = document.createElement('div');
-        div.id = "Water_value";
-        div.className = "indicator";
-        div.style.top = '95px';
-        Panel.appendChild(div);
+    div = document.createElement('div');
+    div.id = "Water_value";
+    div.className = "indicator";
+    div.style.top = '95px';
+    Panel.appendChild(div);
 </script>
 
 <appendContent elementId="framebox">
 <div id = "Fight_window" style="position: absolute; width: 340px; height: 255px; visibility: hidden; z-index: 1; background-image : url('#quest_path$/Img/Fight_Window.bmp')"></div>
 <div id = "BlockAllEvents" style="position: absolute; width: 640px; height: 480px; top: 0px; left: 0px; visibility: hidden; display: 'none'"></div>
 </appendContent>
+
+<appendScript element="head" src="vendor/jquery/jquery-ui.js"></appendScript>
+<appendScript element="head" src="vendor/jquery/jquery-ui.min.js"></appendScript>
+
 
 <appendScript element="body">
 
@@ -4806,83 +4767,6 @@ var imgLabel0;
 var lbl_ypos = new Array(3);
 var expr_action, expr_action1, expr_action2, expr_action3;
 
-$( function()
-{
-    var targets = $( '[rel~=tooltip]' ),
-        target  = false,
-        tooltip = false,
-        title   = false;
-
-    targets.bind( 'mouseenter', function()
-    {
-        target  = $( this );
-        tip     = target.attr( 'title' );
-        tooltip = $( '<div id="tooltip"></div>' );
-
-        if( !tip || tip == '' )
-            return false;
-
-        target.removeAttr( 'title' );
-        tooltip.css( 'opacity', 0 )
-               .html( tip )
-               .appendTo( 'body' );
-
-        var init_tooltip = function()
-        {
-            if( $( window ).width() < tooltip.outerWidth() * 1.5 )
-                tooltip.css( 'max-width', $( window ).width() / 2 );
-            else
-                tooltip.css( 'max-width', 340 );
-
-            var pos_left = target.offset().left + ( target.outerWidth() / 2 ) - ( tooltip.outerWidth() / 2 ),
-                pos_top  = target.offset().top - tooltip.outerHeight() - 20;
-
-            if( pos_left < 0 )
-            {
-                pos_left = target.offset().left + target.outerWidth() / 2 - 20;
-                tooltip.addClass( 'left' );
-            }
-            else
-                tooltip.removeClass( 'left' );
-
-            if( pos_left + tooltip.outerWidth() > $( window ).width() )
-            {
-                pos_left = target.offset().left - tooltip.outerWidth() + target.outerWidth() / 2 + 20;
-                tooltip.addClass( 'right' );
-            }
-            else
-                tooltip.removeClass( 'right' );
-
-            if( pos_top < 0 )
-            {
-                var pos_top  = target.offset().top + target.outerHeight();
-                tooltip.addClass( 'top' );
-            }
-            else
-                tooltip.removeClass( 'top' );
-
-            tooltip.css( { left: pos_left, top: pos_top } )
-                   .animate( { top: '+=10', opacity: 1 }, 50 );
-        };
-
-        init_tooltip();
-        $( window ).resize( init_tooltip );
-
-        var remove_tooltip = function()
-        {
-            tooltip.animate( { top: '-=10', opacity: 0 }, 50, function()
-            {
-                $( this ).remove();
-            });
-
-            target.attr( 'title', tip );
-        };
-
-        target.bind( 'mouseleave', remove_tooltip );
-        tooltip.bind( 'click', remove_tooltip );
-    });
-});
-
 function getOffset(evt)
 {
     if(evt.offsetX != undefined)
@@ -4950,6 +4834,8 @@ function hideContainer()
 {
    imgContainer.onclick = null;
    imgContainer.onmouseout = null;
+   if (selected_container != prev_pointed)
+       highlight_container(selected_container);
 }
 
 function init_Containers()
@@ -4976,11 +4862,9 @@ function createItem(itemStr, IsObject)
       IsObject = true;
 
    if (IsObject) {
-      if (isMobile)
-          Item.rel = "tooltip";
-      Item.title = itemStr;     // Всплывающая подсказка (title или alt в зависимости от
-      Item.alt = itemStr;       // браузера
-	  if (itemStr == "Еда")
+      ##36$(Item).tooltip();
+      Item.title = itemStr;
+      if (itemStr == "Еда")
 	     if (!isMobile)
 	        Item.ondblclick = eatFood;
 	     else
@@ -5544,13 +5428,10 @@ function fightStart(Agility1, Strength1, enemyDesc1)
       enemy [i].Strength = fightStart.arguments [i * 3 + 1];
 	  enemy [i].StrengthFactor = enemyStrengthFactor;
       enemy [i].Alive = true;
-      var desc = fightStart.arguments [i * 3 + 2] + "\r\nЛовкость " + enemy [i].Agility;
+      var desc = "<html>" + fightStart.arguments [i * 3 + 2] + "<br>Ловкость " + enemy [i].Agility + "</html>";
       enemy_pictures [i] = Fight_window.childNodes [i + 2];
       enemy_pictures [i].style.visibility = 'visible';
-      if (isMobile)
-          enemy_pictures [i].rel = "tooltip";
       enemy_pictures [i].title = desc;
-      enemy_pictures [i].alt = desc;
 
       lblStrength [i + 2].innerHTML = enemy [i].Strength.toString();
       lblStrength [i + 2].style.visibility = 'visible';
@@ -5630,13 +5511,10 @@ function callAllies(Agility1, Strength1, allyDesc1)
 	  hero [j].StrengthFactor = 2;
       hero [j].Alive = true;
 	  hero [j].Hurt = false;
-      var desc = callAllies.arguments [i * 3 + 2] + "\r\nЛовкость " + hero [j].Agility;
+      var desc = "<html>" + callAllies.arguments [i * 3 + 2] + "<br>Ловкость " + hero [j].Agility + "</html>";
       hero_pictures [j] = Fight_window.childNodes [j];
       hero_pictures [j].style.visibility = 'visible';
-      if (isMobile)
-          hero_pictures [j].rel = "tooltip";
       hero_pictures [j].title = desc;
-      hero_pictures [j].alt = desc;
 
       lblStrength [j].innerHTML = hero [j].Strength.toString();
       lblStrength [j].style.visibility = 'visible';
@@ -5895,7 +5773,6 @@ function battleSequence()
                   lblStrength [0].style.top = 151 + 'px';
 				  lblStrength [0].style.visibility = 'visible';
 				  hero_pictures [0].title = null;
-				  hero_pictures [0].alt = null;
                   heroResting = false;
                }
 		 }
@@ -6232,6 +6109,9 @@ function InitGame()
          var figImg = document.createElement("IMG");
          figImg.style.position = 'absolute';
          figImg.style.visibility = 'hidden';
+         ##36$(figImg).tooltip({content: function () {
+            return ##36$(this).prop('title');
+         }});
          Fight_window.appendChild(figImg);
       }
        do

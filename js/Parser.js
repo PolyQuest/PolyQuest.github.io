@@ -22,11 +22,11 @@ Parser.prototype.parse = function(line) {
             line.toLowerCase().substring(0, 8) == '<script>' && Game.getVar('urq_mode') == 'polyquest')
         {
             operand = line.toLowerCase().substring(0, line.indexOf('>') + 1);
-            return GlobalPlayer.passHTMLCode(this.openTags(line), operand);
+            return GlobalPlayer.passHTMLCode(line, operand);
         }
     if (Game.getVar('urq_mode') == 'polyquest') {
         if (line.toLowerCase().substring(0, 8) == '<iframe ')
-            return GlobalPlayer.createFrame(this.openTags(line));
+            return GlobalPlayer.createFrame(this.openTags1(line));
         var code = line.match(/^<content\s+(frame\s*=\s*(('[^']*')|("[^"]*")))?\s*>/i);
         if (code != null && code.length > 0) {
             if (code.length > 2)
@@ -35,12 +35,12 @@ Parser.prototype.parse = function(line) {
 
             line = line.substring(code [0].length, line.lastIndexOf('</content>'));
 
-            return GlobalPlayer.putContent(this.openTags(line), operand);
+            return GlobalPlayer.putContent(this.openTags1(line), operand);
         }
 
-        var code = line.match(/^<(appendContent|appendScript|appendStyle)\s+((element\s*=\s*(('[^']*')|("[^"]*")))|(elementId\s*=\s*(('[^']*')|("[^"]*"))))\s*>/i);
+        var code = line.match(/^<(appendContent|appendScript|appendStyle)\s+((element\s*=\s*(('[^']*')|("[^"]*")))|(elementId\s*=\s*(('[^']*')|("[^"]*"))))(\s+src\s*=\s*(('[^']*')|("[^"]*")))?>/i);
         if (code != null && code.length > 0) {
-            var element, elementId;
+            var element, elementId, src;
             if (code [4] != undefined && code [4].length > 2)
                 element = code [4].substr(1, code [4].length - 2);
             else element = '';
@@ -50,15 +50,43 @@ Parser.prototype.parse = function(line) {
                 elementId = code [8].substr(1, code [8].length - 2);
             else elementId = '';
 
+            if (code [12] != undefined && code [12].length > 2)
+                src = code [12].substr(1, code [12].length - 2);
+            else src = null;
+
 
             line = line.substring(code [0].length, line.lastIndexOf('</' + code [1] + '>'));
+            var str;
 
-            if (code [1].toLowerCase() == 'appendContent'.toLowerCase())
-                return GlobalPlayer.appendContent(this.openTags(line), element, elementId);
-            else if (code [1].toLowerCase() == 'appendScript'.toLowerCase())
-                return GlobalPlayer.appendScript(this.openTags(line), element, elementId);
-            else if (code [1].toLowerCase() == 'appendStyle'.toLowerCase())
-                return GlobalPlayer.appendStyle(this.openTags(line), element, elementId);
+            var appendFunc;
+            if (code [1].toLowerCase() == 'appendContent'.toLowerCase()) {
+                appendFunc = GlobalPlayer.appendContent;
+                line = this.openTags1(line);
+            }
+            else if (code [1].toLowerCase() == 'appendScript'.toLowerCase()) {
+                appendFunc = GlobalPlayer.appendScript;
+                line = this.openTags2(line);
+            }
+            else if (code [1].toLowerCase() == 'appendStyle'.toLowerCase()) {
+                appendFunc = GlobalPlayer.appendStyle;
+                line = this.openTags2(line);
+            }
+
+            if (src) {
+                /*GlobalPlayer.readSrcFile(src).then(function(result) {
+                    str = appendFunc(this.openTags(result), element, elementId);
+                }).catch(function() {
+                    console.log('An error occurred while loading file ' + src);
+                });*/
+                str = GlobalPlayer.readSrcFile(src);
+                /*if (appendFunc == GlobalPlayer.appendScript)
+                    eval(str);*/
+                str = appendFunc(str, element, elementId);
+            }
+            else
+                str = appendFunc(line, element, elementId);
+
+            return str;
         }
     }
 
@@ -94,7 +122,7 @@ Parser.prototype.parse = function(line) {
             els = line.substring(line.toLowerCase().indexOf(' else ') + 6);
         }
 
-        var conditionResult = new Expression(this.openTags(cond)).calc();
+        var conditionResult = new Expression(this.openTags2(cond)).calc();
 
         if (conditionResult === true || conditionResult > 0) {
             this.parse(then);
@@ -113,7 +141,7 @@ Parser.prototype.parse = function(line) {
             var com = xbtn[0].trim();
 
             if (com.indexOf('&') == -1) {
-                com = this.openTags(com);
+                com = this.openTags1(com);
             }
 
             return GlobalPlayer.btn(com, desc);
@@ -131,7 +159,7 @@ Parser.prototype.parse = function(line) {
                 com = com + '&' + xbtn[i].trim();
 
             if (loc.indexOf('&') == -1) {
-                loc = this.openTags(loc);
+                loc = this.openTags2(loc);
                 com = com + "&cls &goto " + loc;
             }
             else
@@ -152,22 +180,24 @@ Parser.prototype.parse = function(line) {
 
     switch (operand) {
         case 'save': return Game.save('fast');
-        case 'image': return GlobalPlayer.image(command.toString().trim());
-        case 'music': return GlobalPlayer.playMusic(command.toString().trim(), false);
-        case 'play': return GlobalPlayer.playSound(command.toString().trim());
+        case 'image': return GlobalPlayer.image(this.openTags2(command).toString().trim());
+        case 'music': return GlobalPlayer.playMusic(this.openTags2(command).toString().trim(), false);
+        case 'play': return GlobalPlayer.playSound(this.openTags2(command).toString().trim());
         case 'clsb': return GlobalPlayer.clsb();
         case 'cls': return GlobalPlayer.cls();
         case 'forget_procs': return GlobalPlayer.forgetProcs();
-        case 'proc': return GlobalPlayer.proc(command.toString().trim());
+        case 'proc': return GlobalPlayer.proc(this.openTags2(command).toString().trim());
         case 'end': return GlobalPlayer.end();
-        case 'anykey': return GlobalPlayer.anykey(command.toString().trim());
-        case 'pause': return GlobalPlayer.pause(parseInt(command));
-        case 'input': return GlobalPlayer.input(command.toString().trim());
+        case 'anykey': return GlobalPlayer.anykey(this.openTags2(command).toString().trim());
+        case 'pause': return GlobalPlayer.pause(parseInt(this.openTags2(command)));
+        case 'input': return GlobalPlayer.input(this.openTags2(command).toString().trim());
         case 'quit': return GlobalPlayer.quit();
-        case 'invkill': return GlobalPlayer.invkill(command.toString().trim().length > 0 ? command.toString().trim() : null);
+        case 'invkill':
+            command = this.openTags2(command).toString().trim();
+            return GlobalPlayer.invkill(command.length > 0 ? command : null);
         case 'perkill': return GlobalPlayer.perkill();
         case 'inv-':
-            var item = command.split(',');
+            var item = this.openTags2(command).split(',');
             var quantity = 1;
             if (item.length > 1) {
                 quantity = parseInt(item[0]);
@@ -176,7 +206,7 @@ Parser.prototype.parse = function(line) {
 
             return GlobalPlayer.invRemove(item.toString().trim(), quantity);
         case 'inv+':
-            item = command.split(',');
+            item = this.openTags2(command).split(',');
             quantity = 1;
             if (item.length > 1) {
                 quantity = parseInt(item[0]);
@@ -184,20 +214,20 @@ Parser.prototype.parse = function(line) {
             }
 
             return GlobalPlayer.invAdd(item.toString().trim(), quantity);
-        case 'goto': return GlobalPlayer.goto(command.toString().trim(), 'goto');
+        case 'goto': return GlobalPlayer.goto(this.openTags2(command).toString().trim(), 'goto');
         case 'p':
-        case 'print':  return GlobalPlayer.print(this.openLinks(command), false);
+        case 'print':  return GlobalPlayer.print(this.openLinks(this.openTags(command)), false);
         case 'pln':
-        case 'println': return GlobalPlayer.print(this.openLinks(command), true);
+        case 'println': return GlobalPlayer.print(this.openLinks(this.openTags(command)), true);
         case 'btn':
-            var btn = command.split(',');
+            var btn = this.openTags2(command).split(',');
 
             return GlobalPlayer.btn(btn[0].trim(), btn.slice(1).join(',').trim());
         //рудименты далее
         case 'tokens':
             var reg = new RegExp('[' + ((Game.getVar('tokens_delim') == 'char') ? '' : Game.getVar('tokens_delim')).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&") + ']', 'gi');
 
-            var str = (new Expression(command.trim())).calc().split(reg);
+            var str = (new Expression(this.openTags2(command).trim())).calc().split(reg);
 
             GlobalPlayer.setVar('tokens_num', str.length);
 
@@ -277,16 +307,39 @@ Parser.prototype.prepareLine = function (line) {
  *
  * @returns {String}
  */
-Parser.prototype.openTags = function (line) {
-    line = line.replace(/\#\/\$/g, '<br>');
-    line = line.replace(/\#\%\/\$/g, '<br>');
+Parser.prototype.openTags = function (line, code) {
+    if (code != undefined) {
+        if (!code) {
+            line = line.replace(/\\x00\\r\\n/g, '<br>');
+            line = line.replace(/\\x00\\r\\n/g, '<br>');
+        }
+        else {
+            line = line.replace(/\\x00\\r\\n/g, '\r\n');
+            line = line.replace(/\\x00\\r\\n/g, '\r\n');
+        }
+    }
+    else {
+        line = line.replace(/\#\/\$/g, '\x00\r\n');
+        line = line.replace(/\#\%\/\$/g, '\x00\r\n');
+    }
+
+
     line = line.replace(/\#\$/g, ' ');
     line = line.replace(/\#\%\$/g, ' ');
 
-    // ##$
-    line = line.replace(/\#\#[^\#]+?\$/g, function(exp) {
-        return '&#' + exp.substr(2, (exp.length - 3)) + ';';
-    });
+    if (code != undefined) {
+        line = line.replace(/\#\#[^\#]+?\$/g, function (exp) {
+            if (!code)
+                return '&#' + exp.substr(2, (exp.length - 3)) + ';';
+            else
+                return String.fromCharCode(parseInt(exp.substr(2, (exp.length - 3))));
+        });
+    }
+
+    /*if (code)
+        line = line.replace(/&#[^;]+?;/g, function(exp) {
+            return String.fromCharCode(parseInt(exp.substr(2, (exp.length - 3))));
+        });*/
 
     while (line.search(/\#[^\#]+?\$/) != -1) {
         line = line.replace(/\#[^\#]+?\$/, function(exp) {
@@ -305,14 +358,12 @@ Parser.prototype.openTags = function (line) {
     return line;
 };
 
-Parser.prototype.openTags2 = function (line) {
-    line = line.replace('<br>', '\r\n');
-    // &#;
-    line = line.replace(/&#[^;]+?;/g, function(exp) {
-        return String.fromCharCode(parseInt(exp.substr(2, (exp.length - 3))));
-    });
+Parser.prototype.openTags1 = function (line) {
+    return this.openTags(line, false);
+};
 
-    return line;
+Parser.prototype.openTags2 = function (line) {
+    return this.openTags(line, true);
 };
 
 /**

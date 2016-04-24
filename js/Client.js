@@ -144,7 +144,7 @@ Client.prototype.drawText = function () {
             //Если предполагалась подстановка #quest_path$;
 
             if (src && src.indexOf('http://') == -1 && src.indexOf('https://') == -1)
-                if (src.indexOf('/') <= 0) {
+                if (src.indexOf('/') <= 0 || dirname == '' || src.indexOf(dirname) < 0) {
                     if (src.length != 0 && src [0] == '/')
                         src = src.substr(1);
                     if (files === null) {
