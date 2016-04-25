@@ -73,15 +73,11 @@ Parser.prototype.parse = function(line) {
             }
 
             if (src) {
-                /*GlobalPlayer.readSrcFile(src).then(function(result) {
-                    str = appendFunc(this.openTags(result), element, elementId);
-                }).catch(function() {
-                    console.log('An error occurred while loading file ' + src);
-                });*/
-                str = GlobalPlayer.readSrcFile(src);
+                //str = GlobalPlayer.readSrcFile(src);
+                str = GlobalPlayer.waitReadingSrcFile(appendFunc, src, element, elementId);
+
                 /*if (appendFunc == GlobalPlayer.appendScript)
-                    eval(str);*/
-                str = appendFunc(str, element, elementId);
+                eval(str);*/
             }
             else
                 str = appendFunc(line, element, elementId);

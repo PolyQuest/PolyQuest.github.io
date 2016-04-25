@@ -91,6 +91,7 @@ end
 :use_СИЛА_Максимальное значение
 p Введите максимальное значение СИЛЫ:
 input Max_Strength
+Max_Strength=#Max_Strength$
 goto game
 end
 
@@ -112,26 +113,30 @@ end
 :modify_paragraph
 p Введите номер текущего параграфа:
 input num_par
-inv_Параграф=#num_par$
+if num_par <> 0 then inv_Параграф=#num_par$
 end
 
 :change_Agility
 pln Введите новое значение ЛОВКОСТИ:
 input Agility
-inv_ЛОВКОСТЬ=#Agility$
+Agility=#Agility$
+if Agility > 0 then inv_ЛОВКОСТЬ=#Agility$ else Agility=inv_ЛОВКОСТЬ
 end
 
 :change_Strength
-if Strength > Max_Strength then Strength = Max_Strength
 pln Введите новое значение СИЛЫ:
 input Strength
-inv_СИЛА=#Strength$
+Strength=#Strength$
+if Strength > Max_Strength then Strength = Max_Strength
+if Strength > 0 then inv_СИЛА=#Strength$ else Strength=inv_СИЛА
 end
 
 :change_Charm
 pln Введите новое значение ОБАЯНИЯ:
 input Charm
-inv_ОБАЯНИЕ=#Charm$
+Charm=#Charm$
+if Charm > 12 then Charm = 12
+if Charm > 0 then inv_ОБАЯНИЕ=#Charm$ else Charm=inv_ОБАЯНИЕ
 end
 
 :change_Luck
@@ -215,10 +220,6 @@ end
 
 
 :battle
-<script>
-i=null;
-enemiesCount=null;
-</script>
 instr battle_str=
 StrengthFactor=0
 enemyStrengthFactor=0
@@ -246,10 +247,6 @@ i=i+1
 if i<=enemiesCount then goto params_loop
 i=1
 instr battle_str=#battle_str$fightStart(
-<script>
-i=null;
-enemiesCount=null;
-</script>
 
 :battle_init
 if i>1 then instr battle_str=#battle_str$,
@@ -259,7 +256,6 @@ if i<=enemiesCount then goto battle_init
 instr battle_str=#battle_str$)
 <script>
 expr_action = '#battle_str$';
-//alert(expr_action)
 </script>
 <html>
 <a href="javascript: eval(expr_action)">Начать битву.</a><br />
@@ -524,7 +520,7 @@ function fightStart(Agility1, Strength1, enemyDesc1)
       enemy_pictures [i].title = desc;
       enemy_pictures [i].alt = desc;
 
-      lblStrength [i + 2].innerText = enemy [i].Strength.toString();
+      lblStrength [i + 2].innerHTML = enemy [i].Strength.toString();
       lblStrength [i + 2].style.visibility = 'visible';
    }
    
@@ -560,15 +556,15 @@ function fightStart(Agility1, Strength1, enemyDesc1)
       lblStrength [0].style.top = 151 + 'px';
    
    lblStrength [0].style.left = 246 + 'px';
-   lblStrength [0].innerText = Strength.toString();
+   lblStrength [0].innerHTML = Strength.toString();
    lblStrength [0].style.visibility = 'visible';
    if (ally) {
       lblStrength [1].style.top = 194 + 'px';
       lblStrength [1].style.left = 246 + 'px';
 	  if (!heroResting)
-         lblStrength [1].innerText = hero [1].Strength.toString();
+         lblStrength [1].innerHTML = hero [1].Strength.toString();
 	  else
-         lblStrength [1].innerText = hero [0].Strength.toString();
+         lblStrength [1].innerHTML = hero [0].Strength.toString();
       lblStrength [1].style.visibility = 'visible';
    }
    
@@ -842,12 +838,12 @@ function battleSequence()
 				}
 				else {
 				    if (i != 0 || !heroResting)
-     				    lblStrength [i].innerText = hero [i].Strength.toString();
+     				    lblStrength [i].innerHTML = hero [i].Strength.toString();
 					else
-					    lblStrength [1].innerText = hero [0].Strength.toString();
+					    lblStrength [1].innerHTML = hero [0].Strength.toString();
 					if (i == 0 && !heroResting) {
 						Strength = hero [0].Strength;
-						//Strength_value.innerText = Strength.toString();
+						//Strength_value.innerHTML = Strength.toString();
 					}					
 				}
 
@@ -855,7 +851,7 @@ function battleSequence()
 		 {
             if (enemy [i].Alive)
                if (enemy [i].Strength > 0)
-                  lblStrength [i + 2].innerText = enemy [i].Strength;
+                  lblStrength [i + 2].innerHTML = enemy [i].Strength;
 			   else {
                   num_killed++;
                   removeEnemy(i);
@@ -921,13 +917,13 @@ function battleRound()
    var multiAttack_hero = false;
    var hero_index;
    var rand = new RandomNumberGenerator();
-   for (i = 0; i < heroesCount; i++) {
+   for (var i = 0; i < heroesCount; i++) {
 	   hero [i].Hurt = false;
 	   if (hero [i].Alive) {
 	      hero_index = i;
-		  num = Math.floor(rand.next() * 6) + 1;
+		  dice = Math.floor(rand.next() * 6) + 1;
 	      //dice = Math.floor(Math.random() * 6) + 1;
-	      hero [i].Power = num * 2 + hero [i].Agility;
+	      hero [i].Power = dice * 2 + hero [i].Agility;
 		  if (PowerFactor)
 			  hero [i].Power += PowerFactor;
 	   }
@@ -943,9 +939,9 @@ function battleRound()
         enemy [i].Hurt = false;
         if (enemy [i].Alive) {
 		    enemy_index = i;
-			num = Math.floor(rand.next() * 6) + 1;
+			dice = Math.floor(rand.next() * 6) + 1;
 	        //dice = Math.floor(Math.random() * 6) + 1;
-			enemy [i].Power = num * 2 + enemy [i].Agility;
+			enemy [i].Power = dice * 2 + enemy [i].Agility;
 			if (enemyPowerFactor)
      			enemy [i].Power += enemyPowerFactor;
 		}
@@ -1028,25 +1024,25 @@ function battleRound()
 				    continue;
 				hero_index = 0;
 			}
-			if (enemy [i].Power > hero [hero_index].Power) {
-				 if (enemy [i].StrengthFactor)
-					hero [hero_index].Strength -= enemy [i].StrengthFactor;
-				 else
-					hero [hero_index].Strength -= 2;				
+            if (enemy [i].Power > hero [hero_index].Power) {
+                 if (enemy [i].StrengthFactor)
+                    hero [hero_index].Strength -= enemy [i].StrengthFactor;
+                 else
+                    hero [hero_index].Strength -= 2;
 
 
-			 if (!hero [hero_index].Hurt)
-				hero [hero_index].Hurt = true;
-		  }
-		  else
-			 if (hero [hero_index].Power > enemy [i].Power) {
-			 	if (hero [hero_index].StrengthFactor)
-				   enemy [i].Strength -= hero [hero_index].StrengthFactor;
-				else
-				   enemy [i].Strength -= 2;
-				
-				enemy [i].Hurt = true;
-			}
+                 if (!hero [hero_index].Hurt)
+                    hero [hero_index].Hurt = true;
+              }
+              else
+                 if (hero [hero_index].Power > enemy [i].Power) {
+                    if (hero [hero_index].StrengthFactor)
+                       enemy [i].Strength -= hero [hero_index].StrengthFactor;
+                    else
+                       enemy [i].Strength -= 2;
+
+                    enemy [i].Hurt = true;
+                }
 		}
 
    timerID = setInterval("battleSequence()", 200);

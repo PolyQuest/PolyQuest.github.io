@@ -38,8 +38,7 @@ var SoundPlay = Quest.prototype.SoundPlay;
 var SoundStop = Quest.prototype.SoundStop;
 var SaveGameFile = Quest.prototype.SaveGameFile;
 
-var srcReady = false;
-var scripts = [], styles, html_codes;
+//var srcRead, srcError, srcText;
 
 function utf8_decode(utftext) {
     var string = "";

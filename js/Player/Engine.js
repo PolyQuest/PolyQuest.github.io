@@ -402,43 +402,103 @@ function create(htmlStr) {
     return frag;
 }
 
-Player.prototype.readSrcFile = function(src)
-{
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', src, false);
-    xhr.send();
-    return xhr.responseText;
+Player.prototype.readSrcFile = function(src) {
 
-    /*return new Promise(function(resolve, reject) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', src, true);
-        xhr.responseType = 'text';
-        xhr.onload = function() {
-            resolve(this.responseText);
-        };
-        xhr.onerror = reject;
+    var deferred = $.Deferred();
+
+    /*if ("ActiveXObject" in window)
+    {
+        /*xhr.open('GET', src, false);
         xhr.send();
+        return xhr.responseText;*/
+
+        /*var fileReader = new FileReader();
+        fileReader.onload = function() {
+             deferred.resolve(xhr.responseText);
+        };
+        fileReader.onerror = function(error) {
+             deferred.reject(error);
+        }
+
+        fileReader.readAsText(src, 'CP1251');*/
+
+        /*$.ajax({
+         url: src,
+         dataType: "text"
+         }).done(function(response) {
+            deferred.resolve(response);
+         }).fail(function(error) {
+            deferred.reject(error);
+         });*/
+        /*return deferred.promise();
+    }*/
+
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = 'text';
+    //return new Promise(function (resolve, reject) {
+    xhr.open('GET', src, true);
+    xhr.onload = function () {
+        if (xhr.status == 200) {
+            //resolve(xhr.responseText);
+            //deferred.callback(xhr.responseText);
+            deferred.resolve(xhr.responseText);
+        }
+        else {
+            //reject(Error(xhr.statusText));
+            //deferred.errback(xhr.statusText);
+            deferred.reject(xhr.statusText);
+        }
+    };
+
+    xhr.onerror = function () {
+        //reject(Error("Network Error"));
+        //deferred.errback("Network Error");
+        deferred.reject("Network Error");
+    };
+
+    xhr.send();
+    //});
+
+    return deferred.promise();
+}
+
+
+Player.prototype.waitReadingSrcFile = function(appendFunc, src, element, elementId)
+{
+    /*this.readSrcFile(src).then(function(response) {
+        return appendFunc(response, element, elementId);
+    }, function(error) {
+        console.error('An error occurred while loading file ' + src + ": " + error);
+        return;
     });*/
 
-    /*var fileReader = new FileReader();
-     fileReader.onload = function() {
-     Player.prototype.appendScript(fileReader.result, element, elementId);
-     };
-     fileReader.onerror = function() {
-     return;
-     }
+    /*var deferred = this.readSrcFile(src);
+    deferred.addCallback(function(response) {
+        return appendFunc(response, element, elementId);
+    });
+    deferred.addErrback(function(error) {
+        console.error('An error occurred while loading file ' + src + ": " + error);
+        return;
+    });*/
 
-     fileReader.readAsText(src, 'CP1251');*/
-
-    /*$.ajax({
-     url: src,
-     dataType: "text"
-     }).done(function(msg) {
-     Player.prototype.appendScript(msg, element, elementId);
-     }).fail(function () {
-     return;
-     });*/
+    this.readSrcFile(src).done(function(response) {
+        return appendFunc(response, element, elementId);
+    }).fail(function(error) {
+        console.error('An error occurred while loading file ' + src + ": " + error);
+        return;
+    });
 }
+
+    /*if (srcRead)
+        return appendFunc(srcText, element, elementId);
+    else if (srcError)
+    {
+        console.log('An error occurred while loading file ' + src);
+        return;
+    }
+    else
+        setTimeout(function() { this.waitReadingSrcFile(appendFunc, src, element, elementId); }, 200);*/
+
 
 Player.prototype.appendContent = function(text, element, elementId) {
 
@@ -451,8 +511,6 @@ Player.prototype.appendContent = function(text, element, elementId) {
         /*document.open("text/html", "replace");
         document.write(htmlCode);  // htmlCode is the variable you called newDocument
         document.close();*/
-
-        //$('<script>alert("hi");</' + 'script>').appendTo(document.body);
     }
     else
     {
