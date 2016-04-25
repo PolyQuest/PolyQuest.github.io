@@ -212,9 +212,9 @@ Parser.prototype.parse = function(line) {
             return GlobalPlayer.invAdd(item.toString().trim(), quantity);
         case 'goto': return GlobalPlayer.goto(this.openTags2(command).toString().trim(), 'goto');
         case 'p':
-        case 'print':  return GlobalPlayer.print(this.openLinks(this.openTags(command)), false);
+        case 'print':  return GlobalPlayer.print(this.openLinks(this.openTags1(command)), false);
         case 'pln':
-        case 'println': return GlobalPlayer.print(this.openLinks(this.openTags(command)), true);
+        case 'println': return GlobalPlayer.print(this.openLinks(this.openTags1(command)), true);
         case 'btn':
             var btn = this.openTags2(command).split(',');
 
@@ -337,21 +337,28 @@ Parser.prototype.openTags = function (line, code) {
             return String.fromCharCode(parseInt(exp.substr(2, (exp.length - 3))));
         });*/
 
-    while (line.search(/\#[^\#]+?\$/) != -1) {
-        line = line.replace(/\#[^\#]+?\$/, function(exp) {
-            // рудимент для совместимости
-            if (exp[1] == '%') {
-                exp = exp.substr(2, (exp.length - 3));
-            } else {
-                exp = exp.substr(1, (exp.length - 2));
-            }
-            var result = new Expression(exp).calc();
 
-            return isFloat(result) ? result.toFixed(2) : result;
-        });
-    }
+    if (code != undefined)
+        while (line.search(/\#[^\#]+?\$/) != -1) {
+            line = line.replace(/\#[^\#]+?\$/, function(exp) {
+                // рудимент для совместимости
+                if (exp[1] == '%') {
+                    exp = exp.substr(2, (exp.length - 3));
+                } else {
+                    exp = exp.substr(1, (exp.length - 2));
+                }
+                var result = new Expression(exp).calc();
+
+                return isFloat(result) ? result.toFixed(2) : result;
+            });
+        }
 
     return line;
+
+    /*line = line.replace(/((?:[^\#])|^)\#[^\#]+?\$/, function(exp) {
+            if (exp[0] != '#')
+                exp = exp.substr(1);
+        }*/
 };
 
 Parser.prototype.openTags1 = function (line) {
