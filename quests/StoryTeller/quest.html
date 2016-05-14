@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>StoryTeller</title>
+		<style>
+body { margin: 0; padding: 50px; background-color: #666666; ; color: #666666; }
+h1 {margin: 0 0 0 1em; padding: 0;}
+div[data-page-id] {	display: none;}
+.error {color: #FF0000;}
+.header {margin: 0; padding: 5px 10px 5px 10px; background-color: #000000; border-radius: 25px 25px 0 0; }
+.StoryTeller { margin: 0; padding: 20px; background-color: #FFFFFF; border-style: solid; border-width: 1px; border-color: #000000; border-radius: 0 0 25px 25px; }
+table {margin: 0 0 0 50px; border-collapse:collapse;}
+td { text-align: right; border: 1px solid black;}
+.indented {padding: 0 0 0 10em;}
+		</style>        
+        <script type="text/javascript"  src="storyteller.js"></script>
+		<script type="text/javascript">
+variables = [
+    { name : "variablesPageViews", value : new IntegerVariable(0, 21, 0, false) },
+    { name : "detail", value : new BooleanVariable(false) }
+];
+		</script>
+	</head>
+	<body>    
+        <div class="header">
+            <h1>StoryTeller</h1>
+        </div>
+        <div data-viewport-id="main" class="StoryTeller"></div>
+        <div data-page-id="contents">
+            <hr/>
+            <ol>
+                <li>[if(currentPage() equal "start")]<b>Introduction</b>[else][link("start")]Introduction[end][end]</li>
+                <li>[if(currentPage() equal "gettingStarted")]<b>Getting Started</b>[else][link("gettingStarted")]Getting Started[end][end]</li>
+                <li>[if(currentPage() equal "pages")]<b>Pages</b>[else][link("pages")]Pages[end][end]</li>
+                <li>[if(currentPage() equal "links")]<b>Links</b>[else][link("links")]Links[end][end]</li>
+                <li>[if(currentPage() equal "includes")]<b>Including One Page In Another</b>[else][link("includes")]Including One Page In Another[end][end]</li>
+				<li>[if(currentPage() equal "decoration")]<b>Decorating Your Story</b>[else][link("decoration")]Decorating Your Story[end][end]</li>
+                <li>[if(currentPage() equal "viewports")]<b>Viewports</b>[else][link("viewports")]Viewports[end][end]</li>
+				<li>[if(currentPage() equal "variables")]<b>Variables</b>[else][link("variables")]Variables[end][end]</li>
+                <li>[if(currentPage() equal "usingVariables")]<b>Using Variables</b>[else][link("usingVariables")]Using Variables[end][end]</li>
+                <li>[if(currentPage() equal "localVariables")]<b>Local Variables</b>[else][link("localVariables")]Local Variables[end][end]</li>
+                <li>[if(currentPage() equal "conditional")]<b>Conditional Statements</b>[else][link("conditional")]Conditional Statements[end][end]</li>
+                <li>[if(currentPage() equal "randomness")]<b>Randomness</b>[else][link("randomness")]Randomness[end][end]</li>
+                <li>[if(currentPage() equal "pageFunctions")]<b>Page Functions</b>[else][link("pageFunctions")]Page Functions[end][end]</li>
+                <li>[if(currentPage() equal "lists")]<b>Lists</b>[else][link("lists")]Lists[end][end]</li>
+                <li>[if(currentPage() equal "loops")]<b>Loops</b>[else][link("loops")]Loops[end][end]</li>
+                <li>[if(currentPage() equal "listFunctions")]<b>List functions</b>[else][link("listFunctions")]List Functions[end][end]</li>
+				<li>[if(currentPage() equal "sets")]<b>Sets</b>[else][link("sets")]Sets[end][end]</li>
+				<li>[if(currentPage() equal "lookup")]<b>Sets As Lookup Tables</b>[else][link("lookup")]Sets As Lookup Tables[end][end]</li>
+                <li>[if(currentPage() equal "relations")]<b>Relations</b>[else][link("relations")]Relations[end][end]</li>
+				<li>[if(currentPage() equal "customFunctions")]<b>Custom Functions</b>[else][link("customFunctions")]Custom Functions[end][end]</li>
+                <li>[if(currentPage() equal "functionDetails")]<b>Sets and Relations in Custom Functions</b>[else][link("functionDetails")]Sets and Relations in Custom Functions[end][end]</li>
+                <li>[if(currentPage() equal "blockFunctions")]<b>Block Functions</b>[else][link("blockFunctions")]Block Functions[end][end]</li>
+				<li>[if(currentPage() equal "customVariables")]<b>Custom Variables</b>[else][link("customVariables")]Custom Variables[end][end]</li>
+            </ol>
+        </div>
+        <div data-page-id="start">
+            <h2>Introduction</h2>
+            <p>StoryTeller is a JavaScript application which allows you to create simple interactive stories as HTML documents.</p>
+            <p>This document was created using StoryTeller. It will serve as both an example and a reference.</p>
+            [include("contents")]
+        </div>
+        <div data-page-id="gettingStarted">
+            <h2>Getting Started</h2>
+            <p>To begin you will need to create a new text file with a .html extension.</p>
+            <p>Next, copy the following HTML to create an empty story.</p>
+            <pre>
+&lt;!DOCTYPE html&gt;            
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;style&gt;
+      div[[data-page-id]] {display: none;}
+      .error {color: #FF0000;}
+    &lt;/style&gt;        
+    &lt;script type="text/javascript"  src="storyteller.js"&gt;&lt;/script&gt;
+  &lt;/head&gt;
+  &lt;body&gt;    
+    &lt;div data-page-id="start" class="page"&gt;    
+    &lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;                
+            </pre>            
+			<p>When you distribute your story, you will need to include "storyteller.js" with it. If you want your story to be completely self-contained, you can copy the content of storyteller.js into the &lt;script&gt; element and remove 'src="storyteller.js"':</p>
+			<pre>
+&lt;!DOCTYPE html&gt;            
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;style&gt;
+      div[[data-page-id]] {display: none;}
+      .error {color: #FF0000;}
+    &lt;/style&gt;       
+    &lt;script type="text/javascript"&gt;
+      {Replace this with the content of storyteller.js}
+    &lt;/script&gt;
+  &lt;/head&gt;
+  &lt;body&gt;    
+    &lt;div data-page-id="start" class="page"&gt;    
+    &lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;  			
+			</pre>
+            [include("contents")]
+        </div> 
+        <div data-page-id="pages">
+            <h2>Pages</h2>
+            <p>Like a book, your story will consist of a number of pages.</p>
+            <p>Each page is a &lt;div&gt; element with the the attribute "data-page-id" set to a unique name for that page. 
+            Without this attribute, StoryTeller will not recognise it as a page.</p>
+            <p>Example:<p>
+            <pre>
+&lt;div data-page-id="start"&gt;
+  &lt;h3&gt;Welcome to my story!&lt;/h3&gt;
+&lt;/div&gt;           
+            </pre>
+            <p>This is a page with the name "start". It will show the message "Welcome to my story!" You can include any HTML elements you like to structure the content of your pages.</p>
+			<p>Styling can be done with CSS just like any other HTML document. However, make sure that you keep "div[[data-page-id]] {display: none;}" in the &lt;style&gt; element. This ensures that the reader won't see the unprocessed pages of your story.</p>
+            <p>"start" is a special page name. It indicates to StoryTeller that this page is the first one a reader should see. If no "start" page is found StoryTeller will use the first page in the document.</p>
+            <p>Square brackets ('[[' and ']]') indicate special instructions for StoryTeller. If you want to include square brackets in the text shown to the reader then use double brackets ('[[[[' and ']]]]'). These will be replaced by single brackets in the text shown to the reader.</p>
+            [include("contents")]
+        </div>
+        <div data-page-id="links">
+            <h2>Links</h2>
+            <p>In order to allow you reader to make choices you must add links from the current page to other pages in the story.</p>
+            <p>A link is added like this: [[link("{pageId}")]]{linkBody}[[end]]</p>
+            <p>Replace {pageId} with the name of the page you are linking to and {linkBody} with the content you want to display as the link.</p>
+            <p>Example:<p>
+            <pre>
+&lt;div data-page-id="start"&gt;
+  &lt;h3&gt;Welcome to my story!&lt;/h3&gt;
+  [[link("page2")]]next page[[end]]
+&lt;/div&gt;     
+&lt;div data-page-id="page2"&gt;
+  The End
+&lt;/div&gt;   
+            </pre>
+            <p>This example has two pages, "start" and "page2". The link will take the reader from "start" to "page2" when they click on the text "next page"</p>
+            [include("contents")]
+        </div>
+        <div data-page-id="includes">
+            <h2>Including One Page In Another</h2>
+            <p>Sometimes you'll have content which you want to show on a number of different pages.</p>
+			<p>The [[include("{pageId}")]] command will display the content of another page as though it was a part of the current page. Just replace {pageId} with the name of the page to be included</p>
+            <p>Example:<p>
+            <pre>
+&lt;div data-page-id="start"&gt;
+  &lt;h3&gt;Welcome to my story!&lt;/h3&gt;
+  [[include("subpage")]]
+&lt;/div&gt;     
+&lt;div data-page-id="subpage"&gt;
+  I hope you like it.
+&lt;/div&gt;   
+            </pre>	
+			<p>This will display "Welcome to my story!" and "I hope you like it." all on one page.</p>
+            [include("contents")]
+        </div>
+		<div data-page-id="decoration">
+            <h2>Decorating Your Story</h2>
+            <p>You can add some style to your story with CSS but to achieve the look you want you may need to use HTML elements like &lt;div&gt;s</p>
+            <p>By default, StoryTeller replaces the entire content of the &lt;body&gt; element with the current page. This will overwrite any extra elements you might have added.</p>
+            <p>In order to avoid this, you must tell StoryTeller to use a specific &lt;div&gt; element to display pages. This is done by adding a "data-viewport-id" attribute to that element and setting it to "main". The pages will be displayed inside this element and the content outside of it will remain unaltered.</p>
+			<p>Example:</p>
+            <pre>
+&lt;!DOCTYPE html&gt;            
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;style&gt;
+      div[[data-page-id]] {display: none;}
+      .error {color: #FF0000;}     
+      .banner {background-color: #000000; color: #FFFFFF;}
+    &lt;/style&gt;        
+    &lt;script type="text/javascript"  src="storyteller.js"&gt;&lt;/script&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div class="banner"&gt;
+        &lt;h1&gt;My Story&lt;/h1&gt;
+    &lt;/div&gt;
+    &lt;div data-viewport-id="main"&gt;
+        &lt;div data-page-id="start"&gt;
+            Welcome
+        &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;    
+            </pre>
+            <p>This story will have a permanent header which reads "My Story". The pages can be defined anywhere in the &lt;body&gt;. They won't be visible anyway.</p>
+            [include("contents")]
+        </div>
+        <div data-page-id="viewports">
+            <h2>Viewports</h2>
+            <p>It is also possible to have more than one viewport. These allow you to display more than one page at any time. For example, you might display details like character health or inventory permanently on the side of the screen.</p>
+            <p>In order to define another viewport, create a &lt;div&gt; and set its data-viewport-id to something other than "main". You must also add the data-viewport-page attribute and specify which page this viewport will display. Note: if any viewports are specified, the main viewport must exist.</p>
+            <p>Example:</p>
+            <pre>
+&lt;!DOCTYPE html&gt;            
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;style&gt;
+      div[[data-page-id]] {display: none;}
+      .error {color: #FF0000;}   
+      * {padding: 0; margin: 0;}
+      html, body {height: 100%; padding: 0px; margin: 0px;}
+      #wrap {width:100%; height: 100%; margin:0 auto;}
+      #mainViewport {float:left; width:76%; height: 100%; padding: 2%; background: #AAAAAA;}
+      #sidebarViewport {float:right; width:16%; height: 100%; padding: 2%; background: #666666;}
+    &lt;/style&gt;        
+    &lt;script type="text/javascript"  src="storyteller.js"&gt;&lt;/script&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div id="wrap"&gt; 
+        &lt;div id="mainViewport" data-viewport-id="main"&gt;    
+        &lt;/div&gt;
+        &lt;div id="sidebarViewport"  data-viewport-id="sidebar" data-viewport-page="sidebarPage"&gt;        
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div data-page-id="start"&gt;
+        &lt;h3&gt;Page 1&lt;/h3&gt;
+        [[link("page2")]]to page 2[[end]]
+    &lt;/div&gt;
+    &lt;div data-page-id="page2"&gt;
+        &lt;h3&gt;Page 2&lt;/h3&gt;
+        [[link("page1")]]to page 1[[end]]
+    &lt;/div&gt;
+    &lt;div data-page-id="sidebarPage"&gt;
+        Sidebar
+    &lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;              
+            </pre>
+            <p>This will create two viewports, side by side. "main" will show the current active page ("start" or "page2"). "sidebar" will show "sidebarPage".</p>
+            <p>In order to be able to change the page displayed in a secondary viewport it must be made dynamic. This is done by adding the "data-viewport-type" attribute and setting it to "dynamic".</p>
+            <p>Example:</p>
+            <pre>
+&lt;div id="sidebarViewport"  data-viewport-id="sidebar" data-viewport-page="sidebarPage" data-viewport-type="dynamic"&gt;
+&lt;/div&gt;
+            </pre>            
+            <p>The viewport's page can now be changed with [[viewport({viewportId},{pageId})]] where {viewportId} is the name of the viewport and {pageId} is the name of the page.</p>
+            [include("contents")]
+        </div>
+		<div data-page-id="variables">
+            <h2>Variables</h2>
+			[variablesPageViews=variablesPageViews+1]
+			<p>Variables allow your story can remember what has happened so far. This information can be used to change the content of a page.</p>
+			<p>For example. <b>[if(variablesPageViews equal 1)]This is your first visit to this page[else if(variablesPageViews lessThanOrEqual 20)]You've seen this page [variablesPageViews] times[else]You've seen this page more than 20 times[end] since you opened this document.</b></p>
+			<p>Before you can use these variables in your pages, they must be declared in a &lt;script&gt; element after the existing &lt;script type="text/javascript"  src="storyteller.js"&gt;&lt;/script&gt; element.</p>
+			<p>Example:</p>
+			<pre>
+&lt;script type="text/javascript"  src="storyteller.js"&gt;&lt;/script&gt;
+&ltscript type="text/javascript"&gt; 	
+  variables = [[
+    { name : "myBoolean", value : new BooleanVariable(true) },
+    { name : "myNumber", value : new NumberVariable(0) },    
+    { name : "myInteger1", value : new IntegerVariable(0, 100, 0, false) },
+    { name : "myInteger2", value : new IntegerVariable(1, 10, 10, true) }
+  ]];		
+&lt;/script&gt;
+			</pre>
+            <p>This is a JavaScript array containing a coma-separated list of variable definitions. Each entry takes the form { name : "{variableName}", value : new {variableType}({arguments}) }.</p>
+            <p>{variableName} is the name which will identify this variable. It may only contain letters, numbers and underscores ('_') and the first character must not be a number.</p>
+            <p>There are three possibilities for {variableType}.</p>
+            <p>A BooleanVariable can cold either true or false. It takes one argument, the value it initially holds.</p>
+            <p>A NumberVariable can hold numbers with fractional parts (like 3.14159 or 0.00001). It can also hold very large numbers. It also takes its initial value as its only argument.</p>
+            <p>An IntegerVariable can hold whole numbers in a limited range. It has 4 arguments ({minimumValue}, {maximumValue}, {initialValue}, {wrap}). {minimumValue}  and {maximumValue} define the range of values which this variable can hold. {initialValue} sets the value which the variable will start as. 
+            <p>{wrap} tells the variable what to do when you try to put a number too big or too small into the variable. If it is false, then then any value less than {minimumValue} will become {minimumValue} and any value greater than {maximumValue} will become {maximumValue}. If it is true then the value will wrap around. For example, myInteger2 has {minimumValue}=1 and {maximumValue}=10. If you try to set the value 11. It will become 1. 23 will become 3 and -1 will become 9.</p>
+            [if(detail)]
+            <p><i>The following might get slightly technical. It's not that important and you can skip it if you like.</i> [link("variables")][detail=false]Click here to hide the technical stuff.[end]</p>
+            <p>The value of each variable is maintained in the address bar of the reader's web browser. As you read this document you can see a random-looking string of characters after the file name (starting with '#'). This allows the reader to bookmark any position in the story and return to it later without losing the state of they variables. The space in the address bar is limited. That limit varies from browser to browser but the address (including everything before the '#' too) can safely be up to 2000 characters long.</p>
+            <p>Each variable you create will add to the length. BooleanVariables are the smallest. 6 of them can fit in one character on the address bar. NumberVariables are the largest each will take up to 11 characters (Actually it's slightly less than that, 3 NumberVaraibles will be packed into 32 characters).</p>
+            <p>The size of an IntegerVariable depends on the range of values it can hold. The following table show some of the possible sizes.</p>
+            <table>
+                <tr><th>Range</th><th>Characters</th></tr>
+                <tr><td>64</td><td>1</td></tr>
+                <tr><td>4 096</td><td>2</td></tr>
+                <tr><td>262 144</td><td>3</td></tr>
+                <tr><td>16 777 216</td><td>4</td></tr>
+                <tr><td>1 073 741 824</td><td>5</td></tr>
+            </table>
+            <p>For example. IntegerVariable(0,63,0,false) can hold 64 different values so it will need 1 character in the address bar to hold its state.</p>
+            [else]
+            <p><i>There are some slightly technical details hidden here. You don't really need to read it.</i> [link("variables")][detail=true]Click here to show the technical stuff.[end]</p>
+            [end]
+			[include("contents")]
+		</div>
+        <div data-page-id="usingVariables">
+            <h2>Using Variables</h2>
+            <p>Once you have declared a variable, you can use it in your pages. To display the value of a variable simply write its name in square brackets: [[{varaibleName}]]<p>
+            <p>For example, if you declare a variable named myInteger:</p>
+            <pre>
+variables = [[
+  { name : "myInteger", value : new IntegerVariable(0, 255, 42, false) }
+]]; 
+            </pre>
+            <p>You can use it in a page like this:</p>
+            <pre>
+&lt;div data-page-id="start"&gt;
+  The value of myInteger is [[myInteger]].
+&lt;/div&gt;			
+            </pre>
+			<p>This will display the text "The value of myInteger is 42"</p>
+			<p>You can update the value of a variable at any point in a page like this: [[{variableName}={expression}]]. {expression} can be a value or a mathematical expression. [[myInteger=83]] will update the value to 83. [[myInteger=myInteger+1]] will increase the value of myInteger by 1.</p>
+            <p>Expressions can use the mathematical operators '+', '-', '*'(multiply) and '/'(divide) along with brackets for grouping.</p>            
+			<p>Expressions can also compare values with the operators 'equal', 'notEqual', 'lessThan', 'lessThanOrEqual', 'greaterThan' and 'greaterThanOrEqualTo'. For example "7 lessThan 3" will result in the value 'false'.</p>
+            <p>Boolean values can be combined with the operators 'and' and 'or'. For example "(1 greaterThanOrEqual 2) or (3 lessThan 4)" will be true. The 'not' operator will invert a boolean value. For example "not (1 equal 2)" will be true.</p>
+            <p>Inside a link variables operate slightly differently. Any changes made between [[link("{pageId}")]] and [[end]] will be undone after [[end]]. They will however, be applied if the reader follows the link.</p>
+			<p>Example:</p>
+			<pre>
+&lt;div data-page-id="start"&gt;
+  [[myInteger=1]]
+  &lt;h2&gt;This is the start page&lt;/h2&gt;
+  &lt;p&gt;[[link("page2")]][[myInteger=5]]Go To Page 2[[end]]&lt;/p&gt;
+  &lt;p&gt;myInteger is [[myInteger]]&lt;/p&gt;
+&lt;/div&gt;	
+&lt;div data-page-id="page2"&gt;
+  &lt;h2&gt;This is page 2&lt;/h2&gt;
+  &lt;p>myInteger is [[myInteger]]&lt;/p&gt;
+&lt;/div&gt;		
+			</pre>
+			<p>On the start page. The user will see "myInteger is 1". If they click the link they will see "myInteger is 5"</p>
+			<p>This can be used to allow a user's choice to change values while remaining on the same page.</p>
+			<p>Here's an example which allows the reader to distribute skill points for their character.</p>
+			<pre>
+variables = [[
+  { name : "pointsRemaining", value : new IntegerVariable(0, 20, 20, false) },
+  { name : "strength", value : new IntegerVariable(0, 20, 0, false) },
+  { name : "intelligence", value : new IntegerVariable(0, 20, 0, false) },
+  { name : "charisma", value : new IntegerVariable(0, 20, 0, false) }
+]]; 
+
+...
+
+&lt;div data-page-id="start"&gt;
+  &lt;h2&gt;Distribute Your Skill Points&lt;/h2&gt;
+  &lt;p&gt;You have [[pointsRemaining]] points remaining&lt;/p&gt;
+  &lt;ul&gt;
+    &lt;li&gt;Strength: [[strength]] - [[link()]][[pointsRemaining=pointsRemaining-1]][[strength=strength+1]]add[[end]]&lt;/li&gt;
+    &lt;li&gt;Intelligence: [[intelligence]] - [[link()]][[pointsRemaining=pointsRemaining-1]][[intelligence=intelligence+1]]add[[end]]&lt;/li&gt;
+    &lt;li&gt;Charisma: [[charisma]] - [[link()]][[pointsRemaining=pointsRemaining-1]][[charisma=charisma+1]]add[[end]]&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;	
+			</pre>
+            <p>Note here that no page name was supplied to the link() function. This creates a link which keeps the reader on the current page.</p>
+			<p>When the reader clicks on one of the links, it will increase the associated attribute and decrease the points remaining. Note: This will not stop the reader from distributing after pointsRemaining reaches 0. To do that you need [link("conditional")]conditional statements[end].</p>
+			<p>Note: If your page does not work check the JavaScript console (pressing F12 in most browsers will open it) for any error messages.</p>
+            [include("contents")]
+        </div>
+        <div data-page-id="localVariables">
+            <h2>Local Variables</h2>
+            <p>Sometimes you only need a variable for calculations within a page and it is unnecessary for StoryTeller to remember it after the reader clicks a link.</p>
+            <p>For this purpose you can use local variables. These do not need to be declared before they are used and do not take up space in the address bar.</p>
+            <p>Local variable names start with a dollar sign ('$') and, after that, consist of any combination of numbers, letters and underscores. They can be used anywhere in which standard variables can be.</p>
+            <p>Example:</p>
+            <pre>
+&lt;div data-page-id="start"&gt;
+  [[$localVariable=3]]
+  &lt;p&gt;$localVariable = [[$localVariable]]&lt;/p&gt;
+  [[$localVariable=$localVariable*7]]
+  &lt;p&gt;$localVariable = [[$localVariable]]&lt;/p&gt;
+  &lt;p&gt;[[link("page2")]]Go to page 2[[end]]&lt;/p&gt;
+&lt;/div&gt;
+&lt;div data-page-id="page2"&gt;
+  &lt;p&gt;$localVariable = [[$localVariable]]&lt;/p&gt;
+&lt;/div&gt;
+            </pre>
+            <p>The start page will display "$localVariable = 3" then "$localVariable = 21". However, when the reader clicks "Go to page 2" the value will be forgotten and will display "$localVariable =" (local variables which have not been set have no value)</p>
+            <p>Local variables can store any type of value. They can even hold text, something that standard variables cannot. Text values are written between quotation marks.</p>
+            <p>Example:</p>
+            <pre>
+&lt;div data-page-id="start"&gt;
+  [[$myName="Inigo Montoya"]]
+  &lt;p&gt;Hello. My name is [[$myName]]!&lt;/p&gt;
+&lt;/div&gt;
+            </pre>
+            <p>This will display "Hello. My name is Inigo Montoya."</p>
+            <p>Text values can also be joined with the '+' operator in expressions.</p>
+            <p>Note: local variables are not shared with included pages (using the "include" statement).</p>
+            <p>Example:</p>
+            <pre>
+&lt;div data-page-id="start"&gt;
+  [[$myName="Inigo Montoya"]]
+  [[include("subpage")]]
+  &lt;p&gt;Hello. My name is [[$myName]]!&lt;/p&gt;
+&lt;/div&gt; 
+&lt;div data-page-id="subpage"&gt;
+  [[$myName="Westley"]]
+&lt;/div&gt;            
+            </pre>
+            <p>This will display "Hello. My name is Inigo Montoya.". The $myName local variable in subpage is completely independent of the $myName variable in start.</p>
+            <p>If you want to include quotation marks inside a string you must escape them with backslash ('\'). For example: "\"My dear Mr. Bennet,\" said his lady to him one day, \"have you heard that Netherfield Park is let at last?\"". Will result in the string:</p>
+            <p class="indented"><b>"My dear Mr. Bennet," said his lady to him one day, "have you heard that Netherfield Park is let at last?"</b></p>
+            [include("contents")]
+		</div> 
+        <div data-page-id="conditional">
+            <h2>Conditional Statements</h2>
+            <p>Variables are especially useful when you can change the content of a page based on their values. For this, you must use conditional statements.</p>
+            <p>The simplest conditional statements are written like this: [[if({expression})]]{body}[[end]]. {expression} can be any expression. If it resolves to true then the content of {body} will be processed. false, 0 and unset local variables are all treated as false, everything else is treated as true.</p>
+            <p>Example:</p>
+            <pre>
+variables = [[
+  { name : "showDetail", value : new BooleanVariable(false) }
+]]; 
+
+...
+           
+&lt;div data-page-id="start"&gt;
+  &lt;p&gt;[[link("page2")]][[showDetail=false]]Show page 2 without detail[[end]]&lt;/p&gt;
+  &lt;p&gt;[[link("page2")]][[showDetail=true]]Show page 2 with detail[[end]]&lt;/p&gt;
+&lt;/div&gt;  
+&lt;div data-page-id="page2"&gt;
+  &lt;p&gt;Hello. My name is Inigo Montoya.&lt;/p&gt;
+  [[if(showDetail)]]
+    &lt;p&gt;You killed my father. Prepare to die.&lt;/p&gt;
+  [[end]]
+  &lt;p&gt;[[link("start")]]Go back to start[[end]]&lt;/p&gt;
+&lt;/div&gt;           
+            </pre>
+            <p>"You killed my father. Prepare to die." will only be displayed if the reader uses the second link to get to page2.</p>
+            <p>The [[else]] statement allows you to specify alternative content to process if the expression is false.</p>
+            <p>The following extends the skill points example from [link("usingVariables")]Using Variables[end].<p>
+            <pre>
+&lt;div data-page-id="start"&gt;
+  [[if(pointsRemaining greaterThan 0)]]
+    &lt;h2&gt;Distribute Your Skill Points&lt;/h2&gt;
+    &lt;p&gt;You have [[pointsRemaining]] points remaining&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Strength: [[strength]] - [[link("start")]][[pointsRemaining=pointsRemaining-1]][[strength=strength+1]]add[[end]]&lt;/li&gt;
+      &lt;li&gt;Intelligence: [[intelligence]] - [[link("start")]][[pointsRemaining=pointsRemaining-1]][[intelligence=intelligence+1]]add[[end]]&lt;/li&gt;
+      &lt;li&gt;Charisma: [[charisma]] - [[link("start")]][[pointsRemaining=pointsRemaining-1]][[charisma=charisma+1]]add[[end]]&lt;/li&gt;
+    &lt;/ul&gt;
+  [[else]]
+    &lt;h2&gt;You Have Distributed All Of Your Skill Points&lt;/h2&gt;
+    &lt;ul&gt;
+      &lt;li&gt;Strength: [[strength]]&lt;/li&gt;
+      &lt;li&gt;Intelligence: [[intelligence]]&lt;/li&gt;
+      &lt;li&gt;Charisma: [[charisma]]&lt;/li&gt;
+    &lt;/ul&gt;
+  [[end]]
+&lt;/div&gt;
+            </pre>
+            <p>Now the reader will be unable to use more than the 20 skill points they are given. Once pointsRemaining is reduced to 0 they will no longer see the links to increase their attributes.</p>
+            <p>Even more complex statements can be written using [[else if({expression})]] instead of [[else]]. This allows you to specify a second expression to be checked if the first one is false. You can chain as many "else if" statements as you like. StoryTeller will continue to check each expression until it finds one which evaluates to true. A chain of "else-if" statements can also be ended with an "else" statement which will define the content to process if all expressions evaluate to false.</p>
+            <p>Example</p>
+            <pre>
+&lt;div data-page-id="start"&gt;
+  [[$x=1]]
+  [[$y=2]]
+  [[$z=2]]
+  [[if($x equal $y)]]
+    [[$theValue=1]]
+  [[else if($x greaterThan $y)]]
+    [[$theValue=2]]
+  [[else if($y equal $z)]]
+    [[$theValue=3]] 
+  [[else if($x lessThan $z)]]
+    [[$theValue=4]]    
+  [[else]]
+    [[$theValue=5]]
+  [[end]]
+  &lt;p&gt;The Value is [[$theValue]]&lt;/p&gt;
+&lt;/div&gt;            
+            </pre>
+            <p>The first expression is false and so is the second. The third is true so $theValue is set to 3. StoryTeller then jumps to the [[end]] because it has found a true expression.</p>
+            [include("contents")]
+		</div>
+        <div data-page-id="randomness">
+          <h2>Randomness</h2>
+          <p>Using the features described so far, you can write stories which are completely deterministic. If the reader makes the same choices they will always get the same outcome. Adding some randomness allows you to make stories in which the reader can make the same choices and get a different outcome.</p>
+          <p>There are three random functions you can use. 
+          <ul>          
+            <li>"randomBoolean({probability})" is the simplest. It will randomly choose either true or false with the probability you choose. For example, randomBoolean(0.8) will have an 80% chance of returning true.</li>
+            <li>"randomNumber({minimum},{maximum})" will choose a random number in the range {maximum} to {maximum}. The minimum is inclusive but the maximum is exclusive. That means that randomNumber(10,100) can return 10 but will not return 100 (It can return numbers very close too 100, such as 99.9999)</li>
+            <li>"randomInteger({minimum},{maximum})" will choose a random whole number in the range {maximum} to {maximum}. As for randomNumber, the minimum is inclusive but the maximum is exclusive. randomInteger(5,10) will return 5, 6, 7, 8 or 9.</li>
+          </ul>
+          <p>Example:</p>
+          <pre>
+&lt;div data-page-id="start"&gt;
+  [[if(randomBoolean(0.5))]]
+    &lt;p&gt;Sometimes the reader will see this.&lt;/p&gt;
+  [[else]]
+    &lt;p&gt;Other times they will see this.&lt;/p&gt;
+  [[end]]  
+&lt;/div&gt;
+          </pre>
+            [if(detail)]
+                <p><i>The following might get slightly technical. It's not that important and you can skip it if you like.</i> [link("randomness")][detail=false]Click here to hide the technical stuff.[end]</p>
+                <p>The values generated by these functions aren't actually random. They are generated by a function which appears random if you don't know its internal state. This internal state is stored in the address bar along with your variables. This state is initialised from the browser's random number generator when the story is opened.</p>
+                <p>This means that the outcomes are actually all decided when the reader opens the story and are saved when they bookmark a location within it. In order to get a new sequence of random events you need to clear the state by removing the hash ('#') and everything after it from the address bar (and then hitting enter to reload).</p>
+                <p>If you want to build the ability to reset into your stories then use [[reset()]]{body}[[end]] to create a link which will reset the story when the reader clicks it.</p>
+            [else]
+                <p><i>There are some slightly technical details hidden here. You don't really need to read it.</i> [link("randomness")][detail=true]Click here to show the technical stuff.[end]</p>
+            [end]
+            [include("contents")]
+        </div>
+        <div data-page-id="pageFunctions">
+            <h2>Page Functions</h2>
+            <p>StoryTeller can tell you what page the reader is currently on. The function "currentPage()" will return the pageId of the currently displayed page. "currentPageNumber()" will return an integer which identifies the current page.</p>
+            <p>These functions may not sound especially useful. If you're writing the page you already know what page it is. However, remember that it is possible to include sub-pages in a page. You can use currentPage() within the sub-page to determine which page it is included within.</p>
+            <p>This document uses such a technique in the menu at the bottom of each page. The menu is defined as a sub-page and included in each page. It does not display a link to the page you are already on.</p>
+            <p>The following is an excerpt from the menu sub-page:</p>
+            <pre>
+[[if(currentPage() equal "start")]]&lt;b&gt;Introduction&lt;/b&gt;[[else]][[link("start")]]Introduction[[end]][[end]]
+            </pre>
+            <p>Using currentPageNumber() you can get an identifier for the current page which can be stored in an IntegerVariable (It can also be stored in a NumberVariable but that will take up more space.). This requires you to know how many pages your story has (or at least an upper limit) in order to declare the IntegerVariable. To avoid this there is a fake variable type you can use. You can define a variable as PageNumberVariable({pageId}) and StoryTeller will automatically convert it to the right size IntegerVariable based on the number of pages in your story. {pageId} is optional. It is the pageId which page this variable will initially point to. If it is omitted then the start page is used.</p>
+            <p>Example:</p>
+            <pre>
+variables = [[
+  { name : "pageNumberA", value : new PageNumberVariable() },
+  { name : "pageNumberB", value : new PageNumberVariable("page2") }
+]];         
+            </pre>
+            <p>"link" "include" and "viewport" can use these numeric identifiers in place of the page's name. This allows you to save a page identifier and then use it later to link back to a remembered page.</p>
+            <p>Example:</p>
+            <pre>
+&lt;div data-page-id="history"&gt;
+  [[link(previousPage)]]back[[end]]
+  [[previousPage=currentPageNumber()]]
+&lt;/div&gt;            
+            </pre>
+            <p>This will provide a link back to the last page the reader saw and then update previousPage to point to the current page.</p>
+            <p>You can also get the numeric identifier for the page currently selected for any viewport by calling the "viewport" function without a {pageId}. [[pageVar=viewport({viewportId})]] will save the numeric identifier for the page currently selected for the viewport named {viewportId}.</p>
+            [include("contents")]
+        </div>
+        <div data-page-id="lists">
+            <h2>Lists</h2>
+            <p>A list is an ordered collection of values. A list is surrounded by curly brackets ('{' and '}') and the values are separated with commas. For example: <i>{1,2,3,4,5}</i>. You can also define an empty list: <i>{}</i></p>            
+            <p>Lists can be assigned to local variables (but not standard variables). For example: <i>[[$fellowship={"Frodo","Sam","Merry","Pippin","Gandalf","Aragorn","Legolas","Gimli","Boromir"}]]</i></p>
+            <p>A list can also be assigned to a list of variables. Each variable will receive the corresponding value from the list. For Example: <i>[[{$first,$second,$third}={"A","B","C"}]]</i> will set $first to "A", $second to "B" and $third to "C". This can also be done with lists stored in other variables.</p>
+            <p>Example:</p>
+            <pre>
+[[$myList={"A","B","C"}]]
+[[{$first,$second,$third}=$myList]]
+            </pre>
+            <p>If there are fewer variables than values then the extra values will be ignore. If there are more variables than values then the variables with no corresponding value will not be updated.</p>
+            <p>The assignment will also work with lists that contain other lists. For example: <i>[[{$a,{$b,$c},$d,{$e},$f,$g}={1,{2,3},4,{5,6,7,8},9}]]</i> will result in:<p>
+            <ul>
+                <li>$a = 1</li>
+                <li>$b = 2</li>
+                <li>$c = 3</li>
+                <li>$d = 4</li>
+                <li>$e = 5</li>
+                <li>$f = 9</li>
+                <li>$g will not be updated and will keep whatever value (if any) it had before.</li>
+            </ul>
+            <p>When at least one of the values involves is a list, the '+' operator will join the lists. For example {1,2}+{3,4} gives {1,2,3,4}, {5,6}+7 gives {5,6,7} and 8+{9,10} gives {8,9,10}</p>
+            <p>The projection operator ('@') can be used to extract individual items or sublists from a list. you use it like this: {list}@{index}. {list} is either a literal list or a local variable holding a list. {index} is either a single index or a list of indices, indicating which values to take from the list. Note: the first index in a list is 0.</p>
+			<p>Examples:</p>
+			<ul>
+				<li><i>{"A","B","C"}@1</i> will give "B"</li>
+				<li><i>{"A","B","C"}@{0,2}</i> will give {"A","C"}</li>
+				<li><i>{"A","B","C"}@{2,0}</i> will give {"C","A"}</li>
+				<li><i>{"A","B","C"}@{0,2,2,1}</i> will give {"A","C","C","B"}</li>
+			</ul>
+			<p>If you have local variables: <i>[$primes={2,3,5,7,11}]</i> and <i>[$indices={1,3,3,1}]</i> then:</p>
+			<ul>
+				<li><i>$primes@0</i> will give 2</li>
+				<li><i>$primes@{0,4}</i> will give {2,11}</li>
+				<li><i>$primes@$indices</i> will give {3,7,7,3}</li>
+			</ul>
+            <p>Examples:</p>
+			<ul>
+				<li><i>{"A","B","C"}@-1</i> will give "C"</li>
+				<li><i>{"A","B","C"}@{0,-2}</i> will give {"A","B"}</li>
+				<li><i>{"A","B","C"}@{1,-1}</i> will give {"B","C"}</li>
+			</ul>
+            <p>You can also use negative indices to indicate an offset from the end of the list. -1 indicates the last item, -2 indicates the second last and so on.</p>
+            [include("contents")]
+        </div>
+        <div data-page-id="loops">
+            <h2>Loops</h2>
+            <p>A <b>foreach</b> statement is used to repeat part of a page once for each value in a list. It takes the form: [[foreach {variable} in {list}]]{body}[[end]]. {variable} is the name of a variable (usually a local variable). {list} is a list of values. {body} will be processed and the results displayed once for each member of {list}. Each time {body} is processed, {variable} will be set to the corresponding member.</p>
+            <p>Example:</p>
+            <pre>
+&ltul&gt
+[[foreach $n in {1,1,2,3,5}]]
+    &ltli&gt[[$n]]&lt/li&gt
+[[end]]
+&lt/ul&gt
+            </pre>
+            <p>Result:</p>
+            <ul>
+                [foreach $n in {1,1,2,3,5}]
+                    <li>[$n]</li>
+                [end]
+            </ul>
+            <p>{variable} can also be a list of variables.</p>
+<p>Example:</p>
+            <pre>
+[[foreach {$name, $greeting} in {{"James","Hi"},{"Ben","Hey"},{"David", "Hello"}}]]
+    &ltp&gt[[$name]] says [[$greeting]]&lt/p&gt
+[[end]]
+            </pre>
+            <p>Result:</p>
+            [foreach {$name, $greeting} in {{"James","Hi"},{"Ben","Hey"},{"David", "Hello"}}]
+                <p>[$name] says [$greeting]</p>
+            [end]         
+            [include("contents")]
+        </div>
+        <div data-page-id="listFunctions">
+            <h2>List Functions</h2>
+            <p>StoryTeller has a few built-in functions for working with lists:</p>
+            <ul>
+                <li><b>length({list})</b> returns the number of items in {list}.</li>
+                <li><b>none({list})</b> returns true if {list} contains no items.</li>
+                <li><b>any({list})</b> returns true if {list} contains at least one item.</li>
+                <li><b>concat({a},{b})</b> Concatenates lists {a} and {b}. If either {a}, {b} or both are not lists then they are turned into lists first. concat({1,2},3) gives {1,2,3}.</li>
+                <li><b>first({list})</b> returns the first item in {list} (this is the same as {list}@0).</li>
+                <li><b>exceptFirst({list})</b> returns the all items in {list} except the first.</li>
+                <li><b>last({list})</b> returns the last item in {list} (this is the same as {list}@-1).</li>
+                <li><b>exceptLast({list})</b> returns the all items in {list} except the last.</li>
+				<li><b>peel({list})</b> splits {list} into the first item, last item and a list containing all of the remaining items. (see below).</li>
+				<li><b>peelFirst({list})</b> splits {list} into the first item and a list containing all of the remaining items. (see below).</li>
+				<li><b>peelLast({list})</b> splits {list} into the first item and a list containing all of the remaining items. (see below).</li>
+                <li><b>index({list})</b> attaches the positive and negative index to each item in {list} (see below).</li>
+                <li><b>mark({list})</b> marks the first and last item in {list} so that they can be easily identified in a foreach loop (see below).</li>
+            </ul>
+            <p>In the following example $inventory is a list of object names:</p>
+            <pre>
+[[$sublist=exceptLast($inventory)]]
+[[if(none($inventory))]]
+    You are not carrying anything.
+[[else if(none($sublist))]]
+    You are carrying [[first($inventory)]].
+[[else]]    
+    You are carrying 
+    [[foreach $item in $sublist]]
+        [[$item]],
+    [[end]]
+    and [[last($inventory)]].    
+[[end]]
+            </pre>
+            <p>If $inventory is empty then the reader will see "You are not carrying anything." If $inventory is {"an apple","five oranges","some grapes"} then the reader will see "You are carrying an apple, five oranges, and some grapes."</p>
+			<p><b>peel, peelFirst and peelLast</b></p>
+			<p>peel({list}) returns a list with three values {First, Middle, Last}. First and Last are (obviously) the first and last items in {list}. Middle is a list containing all of the remaining items. For example <i>[[{$f,$m,$l}=peel({1,2,3,4,5})]]</i> will set $f to 1, $m to {2,3,4} and $l to 5.</p>
+			<p>peelFirst({list}) returns a list with two values {First, Remaining}. First is the first item in {list}. Remaining is a list containing all of the remaining items. For example <i>[[{$f,$r}=peelFirst({1,2,3,4,5})]]</i> will set $f to 1 and $r to {2,3,4,5}. Similarly, peelLast({list}) returns the list {Remaining, Last} where Last is the last item in {list} and Remaining is all of the remaining items. <i>[[{$r,$l}=peelLast({1,2,3,4,5})]]</i> will set $r to {1,2,3,4} and $l to 5.</p>
+			<p>Note: in these functions, if First or Last do not exist (if the list is too short) they will be set to null.</p>
+			<p>The following is an alternative way to display the $inventory list:</p>
+			<pre>
+[[{$fst,$mid,$lst}=peel($inventory)]]
+[[if($fst)]]
+    You are carrying [[$fst]]
+[[else]]
+    You are not carrying anything.
+[[end]]
+[[foreach $item in $mid]]
+    , [[$item]]
+[[end]]
+[[if($lst)]]
+	and [[$lst]].
+[[end]]
+			</pre>
+			<p>Note: this example has been broken up onto multiple lines for readability. If copied as-is it will result in spaces appearing before each comma. To avoid this, remove the line breaks.</p>
+            <p><b>index and mark</b></p>
+            <p>index({list}) returns a list, in which each item in {list} is replaced by a list with three values: {Item, I, N}. Item is the original item, I is the index within {list} and N is the negative index.</p>
+            <p>For example, index({"A","B","C"}) gives the following list: (line breaks and indentation are just for readability)</p>
+            <pre>
+{
+    {"A",0,-3},
+    {"B",1,-2},
+    {"C",2,-1}
+}
+            </pre>
+            <p>Similarly, mark({list}) returns a list in which each item is replaced by a list: {Item, IsFirst, IsLast}. Once again, Item is the original Item. IsFirst is a boolean value which is true for the first item and false for all other. IsLast is also a boolean value, true for the last and false for all other.</p>
+            <p>For example, mark({"A","B","C"}) gives the following list:</p>
+            <pre>
+{
+    {"A",true,false},
+    {"B",false,false},
+    {"C",false,true}
+}
+            </pre>    
+            <p>Here is yet another way to display the contents of $inventory:</p>
+            <pre>
+You are 
+[[foreach {$item,$f,$l} in mark($inventory)]]    
+    [[if($f)]]carrying
+    [[else]][[if($l)]] and [[else]], [[end]][[end]]
+    [[$item]]
+[[end]]
+[[if(none($inventory))]]
+    not carrying anything
+[[end]].
+            </pre>
+            [include("contents")]
+        </div>
+        <div data-page-id="sets">
+            <h2>Sets</h2>
+            <p>A set is a group of things. For example the set of characters in your story. In StoryTeller, sets are constant. You define them once and then items can be neither added nor removed.</p>
+			<p>You define sets in the &lt;script&gt; block at the top of the HTML file (along with your variables). The "Set" constructor takes a list of items in curly brackets ('{' and '}'). Each item will need a name to identify it.</p>
+			<p>Example:</p>
+			<pre>
+var people = new Set(
+    {name: "Brian"},
+    {name: "James"},
+    {name: "Ben"},
+    {name: "Declan"},
+    {name: "David"}    
+);
+			</pre>
+			<p>To make the set available in your story to need to define the "sets" array. This is similar to the variables array:</p>
+			<pre>
+sets = [[
+    {name: "people", set = people}
+]];
+			</pre>
+			<p>Once you have defined your set you can use it in a foreach loop:</p>
+			<pre>
+&lt;ol&gt;
+    [[foreach $name in people()]]
+        &lt;li&gt;[$name]%lt;/li&gt;
+    [[end]]
+&lt;/ol&gt;
+			</pre>
+			<p>This will list all of the names in the set "people".</p>
+			<p>Each member of a set can also be represented by its index. This allows you to store a reference to a particular member of a set in a variable. To get the index, pass the name of the item to the set. For example: [[personId=people("James")]] will store the index of "James" in the variable called personId. To retrieve the name, just pass the index to the set. For example: [[people(personId)]] will display <b>James</b></p> 
+			</p>Indices start from 0 and the maximum value is 1 less than the size of the set.</p>
+			[include("contents")]
+        </div>
+		<div data-page-id="lookup">
+            <h2>Sets As Lookup Tables</h2>
+			<p>You can attach extra information to the members of a set and retrieve these values in your stories. You can store any "{key}":{value} pairs you like alongside the name.</p>
+			<p>Example</p>
+			<pre>
+var people = new Set(
+    {name: "Brian", "height": 170, "hair colour": "brown"},
+    {name: "James", "height": 180, "hair colour": "dark brown"},
+    {name: "Ben", "height": 160},
+    {name: "Declan", "height": 180, "hair colour": "black"},
+    {name: "David", "height": 150, "hair colour": "grey"}    
+);
+			</pre>
+            <p>To access the values pass the item name and the key to the set. For example: [[people("Declan","height")]] will display 180. You cannot look up a key which does not exist. For example: [[people("Ben","hair colour")]] will result in an error.</p>
+            <p>You can also look up values with the index of the item in place of the name. For example: [[people(0,"hair colour")]] will display "brown".</p>
+			[include("contents")]
+		</div>
+        <div data-page-id="relations">
+            <h2>Relations</h2>
+            <p>A relation describes some fact for all of the members of one or more sets. One example is a relation between the sets of characters and objects in a story which describes whether or not a character is holding a particular item. The "isHolding" relation holds either true or false for every combination of character and object</p>
+            <p>You define relations in the &lt;script&gt; block at the top of the HTML file (along with your variables and sets). The "Relation" constructor is called with the list of sets it refers to.</p>
+            <p>Example:</p>
+            <pre>
+var characters = new Set(
+    {name = "Dorothy"},
+    {name = "Scarecrow"},
+    {name = "Lion"},
+    {name = "Tin Man"},
+    {name = "Wizard"}
+);
+
+var objects = new Set(
+    {name = "ruby slippers"},
+    {name = "diploma"},
+    {name = "medal"},
+    {name = "pocket watch"}
+);
+
+var isHolding = new Relation(characters, objects);
+            </pre>   
+            <p>This is just one example. Relations can have any number of sets, including one. You could have a relation which records which characters are still alive: <i>var isAlive(characters);</i>.You also might have a relation which records all of the places any two characters have met: <i>var metAt = new Relation(characters, characters, places);</i></p>
+        	<p>To make the relation available in your story to need to define the "relations" array. This is similar to the variables and sets arrays:</p>
+			<pre>
+relations = [[
+    {name: "isHolding", relation = isHolding}
+]];
+			</pre>
+            <p>You can now refer to entries in the relation by passing the names of items to the relation. For example: isHolding("Wizard","ruby slippers"). This can be used to both set and retrieve the entry. For example: [[isHolding("Dorothy","ruby slippers")=true]] will set the isHolding relation to true for the pair "Dorothy" and "ruby slippers" (all entries start off as false). If you now use this fact in an if block [[if(isHolding("Dorothy","ruby slippers"))]]...[[end]] it will resolve to true and the block will be processed.</p>
+            <p>It is also possible to ask a relation to search for combinations which are true. You do this by passing in null in place of the unknown items. The result will be a list of the combinations of unknowns which give a true result. You can use this result in a foreach loop.</p>
+            <p>When there is a single unknown then the result is a list of names:</p>
+            <pre>
+&lt;p&gt;Dorothy is holding:&lt;/p&gt;
+&lt;ul&gt;
+    [[foreach $object in isHolding("Dorothy", null)]]
+        &lt;li&gt;[[$object]]&lt;/li&gt;
+    [[end]]
+&lt;/ul&gt;
+            </pre>
+            <p>When there are multiple unknowns then the result is a list of lists:</p>
+            <pre>
+&lt;ul&gt;
+    [[foreach {$name, $object} in isHolding(null, null)]]
+        &lt;li&gt;[[$name]] is holding the [[$object]]&lt;/li&gt;
+    [[end]]
+&lt;/ul&gt;  
+            </pre>
+            [if(detail)]
+            <p><i>The following might get slightly technical. It's not that important and you can skip it if you like.</i> [link("relations")][detail=false]Click here to hide the technical stuff.[end]</p>
+            <p>Like variables, relations are stored in the address bar. They need 1 bit for every possible combination of elements. To find out the total size of a relation, multiply the sizes of all of its sets together.</p>
+            <p>For example: If the characters set has 7 elements and the places set has 40 then the metAt relation described above will take up 7*7*40=1960 bits. As each character can represent 6 bits, this will take up 327 characters in the address bar. Clearly large relations are to be used sparingly.<p>
+            [else]
+            <p><i>There are some slightly technical details hidden here. You don't really need to read it.</i> [link("relations")][detail=true]Click here to show the technical stuff.[end]</p>
+            [end]          
+            [include("contents")]
+		</div>
+        <div data-page-id="customFunctions">
+            <h2>Custom Functions</h2>
+            <p>If you have complex logic to include in your story you can define your own functions using JavaScript. Functions are defined in a similar way to variables, sets and relations, in the script block at the top of the HTML file.</p>
+            <p>Example:</p>
+            <pre>
+function integerToOrdinal(n) {
+  if(Math.floor(n/10)%10!=1) {
+    switch(n%10) {
+	  case 1:
+	    return n + "st";
+	  case 2:
+	    return n + "nd";
+	  case 3:
+	    return n + "rd"
+    }
+  }
+  return n + "th"
+}	
+			
+functions = [[
+  { name : "ordinal", operation: integerToOrdinal}
+]];           
+            </pre>
+			<p>This will define a function called "ordinal" which converts an integer (1, 2, 3) to an ordinal string (1st, 2nd, 3rd).</p>
+			<p>You can then use this function in your pages:</p>
+			<pre>
+&lt;div data-page-id="finishLine"&gt;
+  "Congratualtions." an official says as you cross the finish line. "You're [[ordinal(place)]]"
+&lt;/div&gt;
+			</pre>            
+            <p>Note: When lists are passed in as parameters to a custom function they become arrays. Similarly, if a custom function returns an array it will be treated as a list.</p> 
+			<p>When you are defining your own functions it is important to remember only variables which are defined in the "variables" array will be managed by StroyTeller. If you use global variables which are not managed by StoryTeller then your story will have unexpected behaviour when if the reader uses the browser's back button or attempts to return to a bookmarked location.</p>
+			<p>To access your variables, keep a reference the object in the variable's "value" property and use its .get() and .set({value}) methods in your function.</p>
+			<p>Example:</p>
+			<pre>
+var globalNumber = new NumberVariable(0);
+
+var variables = [[
+  { name : "myNumber", value : globalNumber }
+]]; 
+
+function multiplyGlobalNumberBy(x) {
+	var temp = globalNumber.get() * x;
+	globalNumber.set(temp);
+}
+
+var functions = [[
+  { name : "multiplyMyNumber", operation: multiplyGlobalNumberBy}
+]];           
+			</pre>
+			<p>If you need to maintain a value for use in your functions but have no use for it in the pages of your story you can simply not give it a name.</p>
+			<p>Example:</p>
+			<pre>
+var globalNumber = new NumberVariable(0);
+
+var variables = [[
+  { value : globalNumber }
+]];     
+			</pre>	           
+			<p>StoryTeller uses its own random number generator which ensures the random events in a page are the same when the reader returns to some point in the story either via the back button or a bookmark. This means that you should not use JavaScript's built-in random number generator (Math.random()). Instead, use the methods provided by StoryTeller's "random" object.</p>
+			<ul>
+				<li>random.getByte(). Returns a random byte (unsigned 8-bit integer).</li>
+				<li>random.getDouble(). Returns a random number in the range [[0,1).</li>
+				<li>random.getBoolean({probability}). Returns either true or false. {probability} is the probability that the reult will be true.</li>
+				<li>random.getNumber({min},{max}). Returns a random number in the range [[{min},{max}).</li>
+				<li>random.getInteger({min},{max}). Returns a random integer in the range [[{min},{max}).</li>
+			</ul>
+            [include("contents")]
+        </div>
+        <div data-page-id="functionDetails">
+            <h2>Sets and Relations in Custom Functions</h2>
+            <p>Sets can be used within your custom functions. Each set exposes the following methods:</p>
+            <ul>
+                <li>size() returns the number of elements in the set.</li>
+                <li>get(name) returns the element identified by name</li>
+                <li>getName(i) returns the name of the element at index i</li>
+                <li>getAllNames() returns an array containing all element names.</li>
+                <li>getIndex(name) returns the index of the element identified by name</li>
+                <li>getByIndex(i) returns the element at index i</li>
+                <li>lookup(name, key) returns the value associated with key in the element identified by name</li>
+                <li>lookupByIndex(i, key) returns the value associated with key in the element at index i</li>                
+            </ul>
+            <p>Relations can also be accessed. They expose these methods:</p>
+            <ul>
+                <li>set(...) sets the relation to true for some combination of elements. It accepts 1 parameter for each set (the name of the element in that set)</li>
+                <li>clear(...) sets the relation to false for some combination of elements.</li>
+                <li>find(...) finds all combinations for which the relation is true. As with the same functionality in a page, use null to indicate unknown elements.</li>
+            </ul>
+            [include("contents")]
+        </div>
+        <div data-page-id="blockFunctions" class="page">
+            <h2>Block Functions</h2>
+			<p>For more complex custom behaviors you can use block functions. These have two important differences from normal custom functions.</p>
+			<p>Firstly, these functions take a block of HTML and StoryTeller statements as one of their parameters. When they are used, the start of this block is indicated by the function name and the end is indicated by [[end]].</p>
+			<p>Example:</p>
+			<pre>
+[[myBlockFunction($myVariable)]]
+	&lt;p&gt;This is the block&lt;/p&gt;
+	[[if(showDetail)]]&lt;p&gt;The block can include StoryTeller statements&lt;/p&gt;[[end]]
+[[end]]
+			</pre>
+			<p>Secondly, the parameters are not evaluated before passing them to your function. You decide if, when and even how many times the block is executed and the parameters are evaluated. To execute the block, call its .execute() function. The text it produces will be returned. To evaluate the other parameters, use their .evaluate() method.</p>
+			<p>The block is passed to your function as its first parameters, then the normal parameters follow.</p>
+            <p>To tell StoryTeller that a function is a block function include "blockFunction: true" in the definition.</p>
+			<p>The following example defines a block function which will act like a for loop:</p>
+			<pre>
+function forLoop(block, init, condition, update) {
+	init.evaluate();
+	
+	var body = "";
+	
+	while(condition.evaluate()) {
+		body += block.execute();
+		update.execute();
+	}
+	
+	return body;
+}
+
+var functions = [[
+  { name : "for", operation: forLoop, blockFunction: true}
+]];   
+			</pre>
+			<p>You can then use it in your pages like this:</p>
+			<pre>
+&lt;p&gt;The coundown started.&lt;/p&gt;
+[[for($i=10,$i greaterThanOrEqual 0,$i=$i-1)]]
+	&lt;p>"[[$i]]"&lt;/p&gt;
+[[end]]
+&lt;p&gt;"Blast Off!"&lt;/p&gt;
+			</pre>
+			<p>You can also assign values to the parameters with their .assign({value}) method.</p>
+			<p>Example:</p>
+			<pre>
+function forEachChar(block, valueParam, textParam) {	
+	var body = "";
+		
+    var text = textParam.evaluate();
+        
+	for(var i=0;i&lt;text.length;i++) {
+		valueParam.assign(text[[i]]);
+		body += block.execute();
+	}
+	
+	return body;
+}
+
+var functions = [[
+  { name : "forEachChar", operation: forEachChar, blockFunction: true}
+]];
+
+...
+
+&lt;div data-page-id="start"&gt;
+  &lt;p&gt;
+  The letters ran vertically down the side of the building:
+  [[forEachChar($char, "THEATRE")]]
+	&lt;br/&gt;[[$char]]
+  [[end]]
+  &lt;/p&gt;
+&lt;/div&gt;
+			</pre>
+            [include("contents")]
+        </div>
+		<div data-page-id="customVariables" class="page">
+            <h2>Custom Variable Types</h2>
+            <p>If the need arises you can define new types of variables. The only requirement is that they have a constant size. That is, every value which the variable can hold can be represented by the same number of bits.</p>
+            <p>A variable must provide 3 methods in order to be stored in the address bar:</p>
+            <ul>
+                <li>.size() - the number of bits needed to store this variable. This must be constant, otherwise StoryTeller will not be able to read state from the address bar.</li>
+                <li>.toInt16Array() - returns an array of unsigned 16bit integers which uniquely represent the value stored in this variable. </li>
+                <li>.fromInt16Array({ints}) - restores the state from an array of unsigned 16bit integers.</li>
+            </ul>
+            <p>Note: The length of the unsigned 16bit integer arrays should be size/16 rounded up to the nearest whole number. For example, if .size() is 40 then the arrays should have length 3 (40/16=2.5). When size is not a multiple of 16 only the low size%16 bits of the last integer will be used.</p>
+            <p>Two more methods are required if you want to refer to your variable in your pages. These are unnecessary if you will only be using the variable in your own custom functions.</p>
+            <ul>
+                <li>.get() - returns the value stored in this variable.</li>
+                <li>.set({value}) - updates the value stored in this variable to {value}.</li>
+            </ul>            
+            <p>The following is an example of a custom variable to hold coordinates in a 1024 by 1024 grid:</p>
+            <pre>
+var readerCoordinates = {
+  x : 0,
+  y : 0,
+  
+  size : function() {return 20;},
+  
+  toInt16Array : function() {
+   var ints = [[]];
+   ints[[0]] = (this.x & 0x03FF) | ((this.y & 0x003F) << 10);
+   ints[[1]] = (this.y & 0x03FF) >> 6;
+   return ints;
+  },
+  
+  fromInt16Array : function(ints) {
+    this.x = ints[[0]] & 0x03FF;
+    this.y = (ints[[0]] >> 10) | (ints[[1]] << 6);
+  }
+}
+
+var variables = [[
+  { value : readerCoordinates }
+]]; 
+            </pre>
+            [include("contents")]
+		</div>
+	</body>
+</html>

@@ -28,6 +28,8 @@ var mode;
 
 var dirname; // для переменной quest_path
 
+var htmlCode;
+
 var readParagraph = Quest.prototype.readParagraph;
 var UrqExec = Quest.prototype.UrqExec;
 var UrqEval = Quest.prototype.UrqEval;
@@ -100,7 +102,14 @@ $(function() {
                     }).done(function(msg) {
                         start(msg, window.location.hash.substr(1));
                     }).fail(function () {
-                        loadFromHashFailed();
+                        $.ajax({
+                            url: dirname + '/quest.html',
+                            type: "HEAD"
+                        }).success(function() {
+                            startHtml(dirname + '/quest.html', name);
+                        }).error(function () {
+                            loadFromHashFailed();
+                        });
                     });
                     /*quest = [];
                     readQst(dirname + '/quest.qst');
@@ -124,6 +133,7 @@ $(function() {
 
         files = {};
         var qst = [];
+        var html = [];
 
         for (var key in zip.files) {
             if (!zip.files[key].dir) {
@@ -134,7 +144,12 @@ $(function() {
                     } else {
                         qst.push(file);
                     }
-                } else if (file.name.split('.').pop().toLowerCase() == 'css') {
+                }
+                else if (file.name.split('.').pop().toLowerCase() == 'html' || file.name.split('.').pop().toLowerCase() == 'htm') {
+                    html.push(file);
+                    readHtml(file);
+                }
+                else if (file.name.split('.').pop().toLowerCase() == 'css') {
                     $('#additionalstyle').find('style').append(file.asBinary());
                 } else if (file.name.split('.').pop().toLowerCase() == 'js') {
                     eval(win2unicode(file.asBinary())); // todo?
@@ -164,6 +179,19 @@ $(function() {
             //dirname = dir;
             dirname = '';
             start(quest, name);
+        }
+        else if (html.length > 0) {
+            name = decodeURIComponent(name);
+            for (var file in html)
+            {
+                var start_index = file.name.lastIndexOf('/') + 1;
+                var filename = file.name.substring(start_index, file.name.lastIndexOf('.'));
+                if (name == filename)
+                {
+                    openHtml(win2unicode(file.asBinary()), file.name);
+                    return;
+                }
+            }
         }
     }
 
@@ -210,6 +238,7 @@ $(function() {
     $('#quest').on('change', function(e) {
         files = {};
         var qst = [];
+        var html = [];
 
         if (e.target.files.length == 1 && e.target.files[0].name.split('.').pop().toLowerCase() == 'zip') {
             var reader = new FileReader();
@@ -225,8 +254,14 @@ $(function() {
         }
 
         for (var i = 0; i < e.target.files.length; i++) {
-            if (e.target.files[i].name.split('.').pop().toLowerCase() == 'qst') {
+            if (e.target.files[i].name.split('.').pop().toLowerCase() == 'qst')
+            {
                 qst.push(e.target.files[i]);
+            }
+            else if (e.target.files[i].name.split('.').pop().toLowerCase() == 'html' || e.target.files[i].name.split('.').pop().toLowerCase() == 'htm')
+            {
+                html.push(e.target.files[i]);
+                readHtml(e.target.files[i]);
             } else if (e.target.files[i].name.toLowerCase() == 'style.css') {
                 readStyle(e.target.files[i]);
             } else if (e.target.files[i].name.toLowerCase() == 'script.js') {
@@ -236,11 +271,14 @@ $(function() {
             }
         }
 
-        if (qst.length == 0) {
+        if (qst.length == 0 && html.length == 0) {
             return;
         }
 
-        var name = qst[0].name;
+        if (qst.length > 0)
+            var name = qst[0].name;
+        else if (html.length > 0)
+            var name = html[0].name;
         //dirname = name.substr(0, name.toLowerCase().lastIndexOf('.qst'));
         dirname = '';
 
@@ -253,9 +291,14 @@ $(function() {
         }
 
         var loadq = setInterval(function() {
-            if (slices == quest.length) {
+            if (qst.length > 0 && slices == quest.length) {
                 clearInterval(loadq);
                 start(quest.join('\r\n'), name);
+            }
+            if (html.length > 0 && htmlCode)
+            {
+                clearInterval(loadq);
+                openHtml(htmlCode, name);
             }
         }, 200); // todo
     });
@@ -313,6 +356,16 @@ $(function() {
         script.readAsText(file, 'CP1251');
     }
 
+    function readHtml(file) {
+        var reader = new FileReader();
+        reader.onload = function() {
+            htmlCode = reader.result;
+        };
+
+        //reader.readAsArrayBuffer(file);
+        reader.readAsText(file, 'CP1251');
+    }
+
     /**
      * Запуск
      *
@@ -357,5 +410,37 @@ $(function() {
         $('#game').show();
 
         GlobalPlayer.continue();
+    }
+
+    function startHtml(pathname, name) {
+        openHtmlFrame(pathname, name);
+    }
+
+    function openHtml(text, name) {
+        openHtmlFrame('data:text/html;charset=utf-8,' + encodeURI(text), name);
+    }
+
+    function openHtmlFrame(text, name) {
+        $('#loading').hide();
+        $('#infopanel').hide();
+        $('#logo').hide();
+
+        $("#textfield").hide();
+        $("#buttons").hide();
+        $("#input").hide();
+        $("#info").hide();
+        $('<iframe>', {
+            id: 'gameFrame',
+            src: text,
+            width: "100%",
+            height: "100%",
+            onload: "this.style.height=this.contentDocument.body.scrollHeight +'px';"
+        }).appendTo('#framebox');
+
+        Game = new HtmlQuest(name);
+        GlobalPlayer = null;
+
+        $('#choose-game').hide();
+        $('#game').show();
     }
 });

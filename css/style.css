@@ -85,8 +85,8 @@ div.clearfix + div.text, #textfield div.text:first-child {
     margin: 20px 0;
 }
 
-div.iframeholder{
-    pointer-events:none;
+#framebox{
+    position: relative;
 }
 
 

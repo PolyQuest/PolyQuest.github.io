@@ -289,10 +289,11 @@ end
 damageFactor=0
 pln Меняем боевые параметры у противника (по умолчанию - 0) или у себя (1)?
 input damageFactor
+damageFactor = #damageFactor$
 p Введите новый параметр повреждений (столько сил надо отнимать при каждом ударе, 2 по умолчанию): 
-if damageFactor=0 then input enemyStrengthFactor & pln #enemyStrengthFactor$ else input StrengthFactor & pln #StrengthFactor$
+if damageFactor=0 then input enemyStrengthFactor & enemyStrengthFactor = #enemyStrengthFactor$ & pln #enemyStrengthFactor$ else input StrengthFactor & StrengthFactor = #StrengthFactor$ & pln #StrengthFactor$
 p Введите модификатор силы удара (0 по умолчанию, отрицательный - на столько единиц силу удара надо уменьшить): 
-if damageFactor=0 then input enemyPowerFactor & pln #enemyPowerFactor$ else input PowerFactor & pln #PowerFactor$
+if damageFactor=0 then input enemyPowerFactor & enemyPowerFactor = #enemyPowerFactor$ & pln #enemyPowerFactor$ else input PowerFactor & PowerFactor = #PowerFactor$ & pln #PowerFactor$
 btn battle_params,Ввести параметры противников.
 btn allies,Ввести союзников.
 btn damage,Изменить боевые параметры.
@@ -340,6 +341,9 @@ let Agility=0
 let Max_Strength=0
 let Strength=0
 let StrengthFactor=0
+let enemyStrengthFactor=0
+let PowerFactor=0
+let enemyPowerFactor=0
 let Charm=0
 let binLuck=0
 let Gold=0

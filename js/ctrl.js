@@ -16,7 +16,7 @@ $(function() {
      * Нажатие на сохранение
      */
     $('#save').on('click', function() {
-        if (GlobalPlayer.lock) return false;
+        if (GlobalPlayer && GlobalPlayer.lock) return false;
 
         $('#game').hide();
 
@@ -35,7 +35,7 @@ $(function() {
         }
 
         $('#saveslots').find('.savebtn').on('click', function() {
-            if (Game.getVar('urq_mode') == 'polyquest') {
+            if (GlobalPlayer && Game.getVar('urq_mode') == 'polyquest') {
                 Game.visitSystemLocation('onsave');
                 GlobalPlayer.getVariablesFromScript();
             }
@@ -74,30 +74,37 @@ $(function() {
         }
 
         $('#saveslots').find('.savebtn').on('click', function() {
-            textfield.empty();
-            buttonField.empty();
-            GlobalPlayer.text = [];
-            GlobalPlayer.buttons = [];
+            if (GlobalPlayer) {
+                textfield.empty();
+                buttonField.empty();
+                GlobalPlayer.text = [];
+                GlobalPlayer.buttons = [];
 
-            Game.load($(this).data('slot'));
-            Game.locked = true;
-            if (Game.getVar('urq_mode') == 'polyquest') {
-                for (var key in Game.polyvars)
-                    GlobalPlayer.putVariableToScript(key)
+                Game.load($(this).data('slot'));
+                Game.locked = true;
+                if (Game.getVar('urq_mode') == 'polyquest') {
+                    for (var key in Game.polyvars)
+                        GlobalPlayer.putVariableToScript(key)
 
-                Game.visitSystemLocation('onload');
+                    Game.visitSystemLocation('onload');
+                }
+
+                returnToGame.click();
+
+                GlobalPlayer.goto(Game.realCurrentLoc, 'return');
+                GlobalPlayer.continue();
+
+                if (Game.getVar('urq_mode') == 'polyquest') {
+                    Game.visitSystemLocation('afterload');
+                }
+
+                Game.locked = false;
             }
-
-            returnToGame.click();
-
-            GlobalPlayer.goto(Game.realCurrentLoc, 'return');
-            GlobalPlayer.continue();
-
-            if (Game.getVar('urq_mode') == 'polyquest') {
-                Game.visitSystemLocation('afterload');
+            else
+            {
+                Game.load($(this).data('slot'));
+                returnToGame.click();
             }
-
-            Game.locked = false;
         });
 
         $('#saveslots').show();
@@ -132,7 +139,7 @@ $(function() {
     });
 
     $('#restart').on('click', function () {
-        if (confirm('Перезапустить игру?')) {
+        if (GlobalPlayer && confirm('Перезапустить игру?')) {
             $('#info').hide();
             $('#input').hide();
             
